@@ -30,9 +30,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.util.Set;
 
 /**
  * This is NOT an opmode.
@@ -83,10 +86,10 @@ public class Robot {
         BRDrive = hwMap.get(DcMotor.class, "BRDrive");
         BLDrive = hwMap.get(DcMotor.class, "BLDrive");
         //leftArm = hwMap.get(DcMotor.class, "left_arm");
-        FRDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        FLDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-        BRDrive.setDirection(DcMotor.Direction.FORWARD);
-        BLDrive.setDirection(DcMotor.Direction.REVERSE);
+        FRDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        FLDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        BRDrive.setDirection(DcMotor.Direction.REVERSE);
+        BLDrive.setDirection(DcMotor.Direction.FORWARD);
 
         // Set all motors to zero power
         FRDrive.setPower(0);
@@ -113,11 +116,11 @@ public class Robot {
     public void DriveMecanum(double strafe, double drive, double turn, boolean modify) {
 
         //Calculate needed power
-        double modifier = 0.85;
+        double modifier = 0.50;
         if (modify) {
             modifier = 0.3;
         } else {
-            modifier = 0.85;
+            modifier = 0.50;
         }
 
         double FRPower = -strafe + drive - turn;
