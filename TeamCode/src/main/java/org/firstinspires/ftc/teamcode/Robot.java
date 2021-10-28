@@ -59,12 +59,11 @@ public class Robot {
     public DcMotor FLDrive = null;
     public DcMotor BRDrive = null;
     public DcMotor BLDrive = null;
-    public Servo Arm = null;
-    //public Servo rightClaw = null;
+    public DcMotor BotArm = null;
+    public DcMotor Spin = null;
+    public Servo ArmGrip = null;
 
-    public static final double MID_SERVO = 0.5;
-    public static final double ARM_UP_POWER = 0.45;
-    public static final double ARM_DOWN_POWER = -0.45;
+
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -85,18 +84,21 @@ public class Robot {
         FLDrive = hwMap.get(DcMotor.class, "FLDrive");
         BRDrive = hwMap.get(DcMotor.class, "BRDrive");
         BLDrive = hwMap.get(DcMotor.class, "BLDrive");
-        //leftArm = hwMap.get(DcMotor.class, "left_arm");
+        BotArm = hwMap.get(DcMotor.class, "BotArm");
+        Spin = hwMap.get(DcMotor.class, "Spin");
         FRDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         FLDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         BRDrive.setDirection(DcMotor.Direction.REVERSE);
         BLDrive.setDirection(DcMotor.Direction.FORWARD);
+        BotArm.setDirection(DcMotor.Direction.FORWARD);
+        Spin.setDirection(DcMotor.Direction.FORWARD);
 
         // Set all motors to zero power
         FRDrive.setPower(0);
         FLDrive.setPower(0);
         BRDrive.setPower(0);
         BLDrive.setPower(0);
-        //leftArm.setPower(0);
+        BotArm.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -104,10 +106,11 @@ public class Robot {
         FLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //leftArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BotArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Define and initialize ALL installed servos.
-        Arm = hwMap.get(Servo.class, "Arm");
+        ArmGrip = hwMap.get(Servo.class, "ArmGrip");
         //rightClaw = hwMap.get(Servo.class, "right_hand");
         //leftClaw.setPosition(MID_SERVO);
         //rightClaw.setPosition(MID_SERVO);
@@ -144,15 +147,21 @@ public class Robot {
         BLDrive.setPower(BLPower * modifier);
     }
 
-    public void Arm(boolean open, boolean close) {
-        if (open && !close) {
-            Arm.setPosition(0.6);
+    public void Arm(double armPower) {
 
-        }
-        if (close && !open) {
-            Arm.setPosition(1);
+        BotArm.setPower(armPower);
 
-        }
+    }
+
+    public void SpinDucks (double duckPower) {
+
+        Spin.setPower(duckPower);
+
+    }
+
+    public void FlipGrip (double flipperPosition) {
+
+        ArmGrip.setPosition(flipperPosition);
 
     }
 }

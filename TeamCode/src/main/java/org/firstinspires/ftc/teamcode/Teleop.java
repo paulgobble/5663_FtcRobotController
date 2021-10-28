@@ -125,17 +125,51 @@ public class Teleop extends OpMode {
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
         robot.DriveMecanum(gamepad1.right_stick_x, -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger > 0);
-        robot.Arm(gamepad2.b, gamepad2.x);
-        // Choose to drive using either Tank Mode, or POV Mode
-        // Comment out the method that's not used.  The default below is POV.
-        // POV Mode uses left stick to go forward, and right stick to turn.
-        // - This uses basic math to combine motions and is easier to drive straight.
-        // Tank Mode uses one stick to control each wheel.
-        // - This requires no math, but it is hard to drive forward slowly and keep straight.
-        // leftPower  = -gamepad1.left_stick_y ;
-        // rightPower = -gamepad1.right_stick_y ;
 
-        // Send calculated power to wheels
+        // BotArm D-pod control
+        boolean armUp = gamepad2.dpad_up;
+        boolean armDown = gamepad2.dpad_down;
+        double armSpeed = .5;
+        if (armUp) {
+            //raise the wing
+            robot.Arm(armSpeed);
+        } else if (armDown) {
+            // lower the wing
+            robot.Arm(armSpeed * -1);
+        } else {
+            // do nothing
+            robot.Arm(0);
+        }
+
+
+
+        // Spin D-pod control
+        boolean spinLeft = gamepad2.dpad_left;
+        boolean spinRight = gamepad2.dpad_right;
+        double duckSpeed = .5;
+        if (spinLeft) {
+            //spin duck left
+            robot.SpinDucks(duckSpeed);
+        } else if (spinRight) {
+            // spin duck right
+            robot.SpinDucks(duckSpeed * -1);
+        } else {
+            // do nothing
+            robot.SpinDucks(0);
+        }
+
+
+        // Flipper Gripper Trigger control
+        boolean openGrip = gamepad2.right_trigger > 0;
+        boolean closeGrip = gamepad2.left_trigger > 0;
+        if (openGrip) {
+            robot.FlipGrip(1);
+        } else if (closeGrip) {
+            robot.FlipGrip(.3);
+        }
+
+
+
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
