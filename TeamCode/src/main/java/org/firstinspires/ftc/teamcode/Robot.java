@@ -90,7 +90,7 @@ public class Robot {
         FLDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         BRDrive.setDirection(DcMotor.Direction.REVERSE);
         BLDrive.setDirection(DcMotor.Direction.FORWARD);
-        BotArm.setDirection(DcMotor.Direction.FORWARD);
+        BotArm.setDirection(DcMotor.Direction.REVERSE);
         Spin.setDirection(DcMotor.Direction.FORWARD);
 
         // Set all motors to zero power
