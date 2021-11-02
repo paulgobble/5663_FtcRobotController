@@ -129,7 +129,7 @@ public class Teleop extends OpMode {
         // BotArm D-pod control
         boolean armUp = gamepad2.dpad_up;
         boolean armDown = gamepad2.dpad_down;
-        double armSpeed = .5;
+        double armSpeed = .75;
         if (armUp) {
             //raise the wing
             robot.Arm(armSpeed);
@@ -163,9 +163,9 @@ public class Teleop extends OpMode {
         boolean openGrip = gamepad2.right_trigger > 0;
         boolean closeGrip = gamepad2.left_trigger > 0;
         if (openGrip) {
-            robot.FlipGrip(.03);
+            robot.FlipGrip(.2);
         } else if (closeGrip) {
-            robot.FlipGrip(.1);
+            robot.FlipGrip(.3);
         }
 
 
@@ -174,9 +174,9 @@ public class Teleop extends OpMode {
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("FRDrive", robot.FRDrive.getCurrentPosition());
-        telemetry.addData("FLDrive", robot.FRDrive.getCurrentPosition());
-        telemetry.addData("BRDrive", robot.FRDrive.getCurrentPosition());
-        telemetry.addData("BLDrive", robot.FRDrive.getCurrentPosition());
+        telemetry.addData("FLDrive", robot.FLDrive.getCurrentPosition());
+        telemetry.addData("BRDrive", robot.BRDrive.getCurrentPosition());
+        telemetry.addData("BLDrive", robot.BLDrive.getCurrentPosition());
 
     }
 
