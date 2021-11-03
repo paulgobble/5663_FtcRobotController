@@ -62,6 +62,7 @@ public class Robot {
     public DcMotor BotArm = null;
     public DcMotor Spin = null;
     public Servo ArmGrip = null;
+    public DcMotor Spin2 = null;
 
 
 
@@ -86,12 +87,14 @@ public class Robot {
         BLDrive = hwMap.get(DcMotor.class, "BLDrive");
         BotArm = hwMap.get(DcMotor.class, "BotArm");
         Spin = hwMap.get(DcMotor.class, "Spin");
+        Spin2 = hwMap.get(DcMotor.class, "Spin2");
         FRDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         FLDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         BRDrive.setDirection(DcMotor.Direction.REVERSE);
         BLDrive.setDirection(DcMotor.Direction.FORWARD);
         BotArm.setDirection(DcMotor.Direction.REVERSE);
         Spin.setDirection(DcMotor.Direction.FORWARD);
+        Spin2.setDirection(DcMotor.Direction.FORWARD);
 
         // Set all motors to zero power
         FRDrive.setPower(0);
@@ -108,6 +111,7 @@ public class Robot {
         BLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BotArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Spin2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Define and initialize ALL installed servos.
         ArmGrip = hwMap.get(Servo.class, "ArmGrip");
@@ -156,6 +160,7 @@ public class Robot {
     public void SpinDucks (double duckPower) {
 
         Spin.setPower(duckPower);
+        Spin2.setPower(duckPower);
 
     }
 
