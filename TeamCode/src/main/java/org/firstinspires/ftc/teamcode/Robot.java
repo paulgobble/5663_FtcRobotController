@@ -160,7 +160,7 @@ public class Robot {
     public void SpinDucks (double duckPower) {
 
         Spin.setPower(duckPower);
-        Spin2.setPower(duckPower);
+        Spin2.setPower(duckPower * .5);
 
     }
 
