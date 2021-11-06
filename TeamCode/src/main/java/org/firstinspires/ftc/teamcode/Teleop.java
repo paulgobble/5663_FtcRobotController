@@ -146,7 +146,7 @@ public class Teleop extends OpMode {
         // Spin D-pod control
         boolean spinLeft = gamepad2.dpad_left;
         boolean spinRight = gamepad2.dpad_right;
-        double duckSpeed = .5;
+        double duckSpeed = .80;
         if (spinLeft) {
             //spin duck left
             robot.SpinDucks(duckSpeed);
