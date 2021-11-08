@@ -37,6 +37,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+
 import java.util.Set;
 
 /**
@@ -63,8 +67,12 @@ public class Robot {
     public DcMotor BLDrive = null;
     public DcMotor BotArm = null;
     public DcMotor Spin = null;
-    public Servo ArmGrip = null;
     public DcMotor Spin2 = null;
+
+    public Servo ArmGrip = null;
+
+    public OpenCvCamera WebCamL = null;
+
 
 
 
@@ -90,23 +98,23 @@ public class Robot {
         BotArm = hwMap.get(DcMotor.class, "BotArm");
         Spin = hwMap.get(DcMotor.class, "Spin");
         Spin2 = hwMap.get(DcMotor.class, "Spin2");
-        FRDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        FLDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        // Set direction of motors
+        FRDrive.setDirection(DcMotor.Direction.REVERSE);
+        FLDrive.setDirection(DcMotor.Direction.FORWARD);
         BRDrive.setDirection(DcMotor.Direction.REVERSE);
         BLDrive.setDirection(DcMotor.Direction.FORWARD);
         BotArm.setDirection(DcMotor.Direction.REVERSE);
         Spin.setDirection(DcMotor.Direction.FORWARD);
         Spin2.setDirection(DcMotor.Direction.FORWARD);
-
         // Set all motors to zero power
         FRDrive.setPower(0);
         FLDrive.setPower(0);
         BRDrive.setPower(0);
         BLDrive.setPower(0);
         BotArm.setPower(0);
-
+        Spin.setPower(0);
+        Spin2.setPower(0);
         // Set all motors to run without encoders.
-        // May want to use RUN_USING_ENCODERS if encoders are installed.
         FRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -117,9 +125,25 @@ public class Robot {
 
         // Define and initialize ALL installed servos.
         ArmGrip = hwMap.get(Servo.class, "ArmGrip");
-        //rightClaw = hwMap.get(Servo.class, "right_hand");
-        //leftClaw.setPosition(MID_SERVO);
-        //rightClaw.setPosition(MID_SERVO);
+
+        // Define webcams
+        int cameraMonitorViewIdL = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
+        WebcamName webcamNameL = hwMap.get(WebcamName.class, "webCamL");
+        OpenCvCamera webCamL = OpenCvCameraFactory.getInstance().createWebcam(webcamNameL, cameraMonitorViewIdL);
+        webCamL.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                // start streaming
+                webCamL.startStreaming(1280, 720);
+            }
+            @Override
+            public void onError(int errorCode)
+            {
+                // do something with error
+            }
+        });
     }
 
     public void DriveMecanum(double strafe, double drive, double turn, boolean modify) {
