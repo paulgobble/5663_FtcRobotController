@@ -125,9 +125,9 @@ public class Robot {
         //Calculate needed power
         double modifier = 0.50;
         if (modify) {
-            modifier = 0.3;
+            modifier = 0.1;
         } else {
-            modifier = 0.50;
+            modifier = 0.5;
         }
 
         double FRPower = -strafe + drive - turn;
@@ -160,7 +160,7 @@ public class Robot {
     public void SpinDucks (double duckPower) {
 
         Spin.setPower(duckPower);
-        Spin2.setPower(duckPower * .3);
+        Spin2.setPower(duckPower);
 
     }
 

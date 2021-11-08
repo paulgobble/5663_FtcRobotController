@@ -177,6 +177,7 @@ public class Teleop extends OpMode {
         telemetry.addData("FLDrive", robot.FLDrive.getCurrentPosition());
         telemetry.addData("BRDrive", robot.BRDrive.getCurrentPosition());
         telemetry.addData("BLDrive", robot.BLDrive.getCurrentPosition());
+        telemetry.addData("Creep", gamepad1.right_trigger > 0);
 
     }
 
