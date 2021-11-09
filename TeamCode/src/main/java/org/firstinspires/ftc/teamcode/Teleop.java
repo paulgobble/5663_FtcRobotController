@@ -163,7 +163,7 @@ public class Teleop extends OpMode {
         boolean openGrip = gamepad2.right_trigger > 0;
         boolean closeGrip = gamepad2.left_trigger > 0;
         if (openGrip) {
-            robot.FlipGrip(.2);
+            robot.FlipGrip(.01);
         } else if (closeGrip) {
             robot.FlipGrip(.3);
         }
