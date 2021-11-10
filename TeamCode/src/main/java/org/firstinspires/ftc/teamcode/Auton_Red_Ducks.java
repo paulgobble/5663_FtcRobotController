@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Auton_Red_Ducks", group="Autonomous")
-@Disabled
+//@Disabled
 public class Auton_Red_Ducks extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -23,14 +23,13 @@ public class Auton_Red_Ducks extends LinearOpMode {
     static final double     COUNTS_PER_MOTOR_REV    = 383.6 ;  //GoBilda Motor 28 counts per motor rev (28*13.7=383.6)
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;
     static final double     WHEEL_DIAMETER_INCHES   = 3.93734 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
 
 
     @Override
     public void runOpMode() {
 
-        // robot.hMap(hardwareMap);  I'm guessing we don't need to call a hMap method.  Robot's init method takes care of this
+        robot.init(hardwareMap);  //I'm guessing we don't need to call a hMap method.  Robot's init method takes care of this
 
         //Reset all encoders to have a fresh start when the match starts.
         //Drive
@@ -52,6 +51,8 @@ public class Auton_Red_Ducks extends LinearOpMode {
         runtime.reset();
 
         // THE SCRIPT
+
+        encoderDrive(1,10,10,10,10,5);
 
         // THE POSTSCRIPT
         /*switch (robot.getDecipheredTargetZone()) {
