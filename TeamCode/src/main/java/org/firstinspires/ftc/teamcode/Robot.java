@@ -60,6 +60,13 @@ import java.util.Set;
  * Servo channel:  Servo to open right claw: "right_hand"
  */
 public class Robot {
+    /* Public Variables */
+    public double FRPosition;
+    public double FLPosition;
+    public double BRPosition;
+    public double BLPosition;
+
+
     /* Public OpMode members. */
     public DcMotor FRDrive = null;
     public DcMotor FLDrive = null;
@@ -72,9 +79,6 @@ public class Robot {
     public Servo ArmGrip = null;
 
     public OpenCvCamera WebCamL = null;
-
-
-
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -194,5 +198,12 @@ public class Robot {
 
         ArmGrip.setPosition(flipperPosition);
 
+    }
+
+    public void checkPositions () {
+        FLPosition = FLDrive.getCurrentPosition();
+        FRPosition = FRDrive.getCurrentPosition();
+        BLPosition = BLDrive.getCurrentPosition();
+        BRPosition = BLDrive.getCurrentPosition();
     }
 }

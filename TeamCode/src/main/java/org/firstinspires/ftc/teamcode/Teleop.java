@@ -129,7 +129,7 @@ public class Teleop extends OpMode {
         // BotArm D-pod control
         boolean armUp = gamepad2.dpad_up;
         boolean armDown = gamepad2.dpad_down;
-        double armSpeed = .75;
+        double armSpeed = 1;
         if (armUp) {
             //raise the wing
             robot.Arm(armSpeed);
@@ -160,12 +160,17 @@ public class Teleop extends OpMode {
 
 
         // Flipper Gripper Trigger control
-        boolean openGrip = gamepad2.right_trigger > 0;
-        boolean closeGrip = gamepad2.left_trigger > 0;
+        boolean openGrip = gamepad2.left_trigger > 0;  // these assignments seam backwards, but they work
+        boolean closeGrip = gamepad2.right_trigger > 0;
+        boolean openWide = gamepad2.left_bumper;
+        telemetry.addData("Open Grip", openGrip);
+        telemetry.addData("CloseGrip", closeGrip);
         if (openGrip) {
-            robot.FlipGrip(.01);
+            robot.FlipGrip(.27); // was .1 then .01
         } else if (closeGrip) {
-            robot.FlipGrip(.3);
+            robot.FlipGrip(.2);
+        } else if (openWide) {
+            robot.FlipGrip(.4);
         }
 
 
