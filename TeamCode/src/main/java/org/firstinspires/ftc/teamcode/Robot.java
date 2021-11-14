@@ -65,6 +65,7 @@ public class Robot {
     public double FLPosition;
     public double BRPosition;
     public double BLPosition;
+    public double ArmPosition;
 
 
     /* Public OpMode members. */
@@ -73,6 +74,7 @@ public class Robot {
     public DcMotor BRDrive = null;
     public DcMotor BLDrive = null;
     public DcMotor BotArm = null;
+    public DcMotor BotArm2 = null;
     public DcMotor Spin = null;
     public DcMotor Spin2 = null;
 
@@ -100,6 +102,7 @@ public class Robot {
         BRDrive = hwMap.get(DcMotor.class, "BRDrive");
         BLDrive = hwMap.get(DcMotor.class, "BLDrive");
         BotArm = hwMap.get(DcMotor.class, "BotArm");
+        BotArm2 = hwMap.get(DcMotor.class, "BotArm2");
         Spin = hwMap.get(DcMotor.class, "Spin");
         Spin2 = hwMap.get(DcMotor.class, "Spin2");
         // Set direction of motors
@@ -108,6 +111,7 @@ public class Robot {
         BRDrive.setDirection(DcMotor.Direction.REVERSE);
         BLDrive.setDirection(DcMotor.Direction.FORWARD);
         BotArm.setDirection(DcMotor.Direction.REVERSE);
+        BotArm2.setDirection(DcMotor.Direction.FORWARD);
         Spin.setDirection(DcMotor.Direction.FORWARD);
         Spin2.setDirection(DcMotor.Direction.FORWARD);
         // Set all motors to zero power
@@ -116,6 +120,7 @@ public class Robot {
         BRDrive.setPower(0);
         BLDrive.setPower(0);
         BotArm.setPower(0);
+        BotArm2.setPower(0);
         Spin.setPower(0);
         Spin2.setPower(0);
         // Set all motors to run without encoders.
@@ -124,6 +129,7 @@ public class Robot {
         BRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BotArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BotArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Spin2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -181,9 +187,82 @@ public class Robot {
         BLDrive.setPower(BLPower * modifier);
     }
 
+
+
+
+    /* moving encoderDrive from Auton to Robot */
+    /* removing all time checks and telemetry  */
+    public void encoderDrive(double speed, double FLInches, double FRInches, double BLInches, double BRInches)
+    {
+        //Set up variables for erncoders to wheel distance.
+        final double     COUNTS_PER_MOTOR_REV    = 383.6 ;  //GoBilda Motor 28 counts per motor rev (28*13.7=383.6)
+        final double     DRIVE_GEAR_REDUCTION    = 1.0 ;
+        final double     WHEEL_DIAMETER_INCHES   = 3.75 ;     // For figuring circumference
+        final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
+
+        //Create targets for motors.
+        int newFLTarget;
+        int newFRTarget;
+        int newBLTarget;
+        int newBRTarget;
+
+        // Ensure that the opmode is still active.
+        //if (opModeIsActive()) {
+
+            //Get new target positions.
+            newFLTarget = FLDrive.getCurrentPosition() + (int)(FLInches * COUNTS_PER_INCH);
+            newFRTarget = FRDrive.getCurrentPosition() + (int)(FRInches * COUNTS_PER_INCH);
+            newBLTarget = BLDrive.getCurrentPosition() + (int)(BLInches * COUNTS_PER_INCH);
+            newBRTarget = BRDrive.getCurrentPosition() + (int)(BRInches * COUNTS_PER_INCH);
+
+            //Set the new target positions.
+            FLDrive.setTargetPosition(newFLTarget);
+            FRDrive.setTargetPosition(newFRTarget);
+            BLDrive.setTargetPosition(newBLTarget);
+            BRDrive.setTargetPosition(newBRTarget);
+
+            //Set mode to run to position.
+            FLDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FRDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BLDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BRDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            //Reset time.
+            //segmentTime.reset();
+
+            //Apply power to motors.
+            FLDrive.setPower(Math.abs(speed));
+            FRDrive.setPower(Math.abs(speed));
+            BLDrive.setPower(Math.abs(speed));
+            BRDrive.setPower(Math.abs(speed));
+
+            //Detect whether or not the robot is running.
+            while (FLDrive.isBusy() && FRDrive.isBusy()&& BLDrive.isBusy()&& BRDrive.isBusy()) {
+
+                //Telemetry
+
+            }
+
+            //Stop motors.
+            FLDrive.setPower(0);
+            FRDrive.setPower(0);
+            BLDrive.setPower(0);
+            BRDrive.setPower(0);
+
+            //Turn off RUN_TO_POSITION.
+            FLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            FRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            BLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            BRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //}
+    } //encoderDrive
+
+
+
     public void Arm(double armPower) {
 
         BotArm.setPower(armPower);
+        BotArm2.setPower(armPower);
 
     }
 
@@ -205,5 +284,6 @@ public class Robot {
         FRPosition = FRDrive.getCurrentPosition();
         BLPosition = BLDrive.getCurrentPosition();
         BRPosition = BLDrive.getCurrentPosition();
+        ArmPosition = BotArm.getCurrentPosition();
     }
 }

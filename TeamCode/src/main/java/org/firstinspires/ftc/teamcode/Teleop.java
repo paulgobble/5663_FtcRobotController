@@ -177,12 +177,13 @@ public class Teleop extends OpMode {
 
 
         // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("FRDrive", robot.FRDrive.getCurrentPosition());
-        telemetry.addData("FLDrive", robot.FLDrive.getCurrentPosition());
-        telemetry.addData("BRDrive", robot.BRDrive.getCurrentPosition());
-        telemetry.addData("BLDrive", robot.BLDrive.getCurrentPosition());
-        telemetry.addData("Creep", gamepad1.right_trigger > 0);
+        telemetry.addData("      Status", "Run Time: " + runtime.toString());
+        telemetry.addData("     FRDrive", robot.FRDrive.getCurrentPosition());
+        telemetry.addData("     FLDrive", robot.FLDrive.getCurrentPosition());
+        telemetry.addData("     BRDrive", robot.BRDrive.getCurrentPosition());
+        telemetry.addData("     BLDrive", robot.BLDrive.getCurrentPosition());
+        telemetry.addData("       Creep", gamepad1.right_trigger > 0);
+        telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
 
     }
 
