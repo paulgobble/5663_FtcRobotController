@@ -67,7 +67,10 @@ import java.util.Set;
  */
 public class Robot {
     /* Public Variables */
-    public double FRPosition;
+    public double leftCameraView;   // set by vision pipeline
+    public double rightCameraView;
+
+    public double FRPosition;  // I'm not sure we use these
     public double FLPosition;
     public double BRPosition;
     public double BLPosition;

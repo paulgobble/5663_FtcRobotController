@@ -30,6 +30,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -43,6 +44,8 @@ public class SwitchableWebcamExample extends LinearOpMode
 {
     WebcamName WebCamL;
     WebcamName WebCamR;
+    String currentCamera = "Right";
+    double currentCameraValue = 0;
     OpenCvSwitchableWebcam switchableWebcam;
 
     @Override
@@ -71,8 +74,14 @@ public class SwitchableWebcamExample extends LinearOpMode
             @Override
             public void onOpened()
             {
-                switchableWebcam.setPipeline(new TestPipeline());
-                switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                switchableWebcam.setPipeline(new TestPipelineInteranl());
+
+                if (currentCamera.equals("Left")) {
+                    switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                } else {
+                    switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+                }
+
             }
 
             @Override
@@ -89,12 +98,8 @@ public class SwitchableWebcamExample extends LinearOpMode
         while (opModeIsActive())
         {
             telemetry.addLine("PRESS A/B TO SWITCH CAMERA\n");
-            telemetry.addData("Frame Count", switchableWebcam.getFrameCount());
-            telemetry.addData("FPS", String.format("%.2f", switchableWebcam.getFps()));
-            telemetry.addData("Total frame time ms", switchableWebcam.getTotalFrameTimeMs());
-            telemetry.addData("Pipeline time ms", switchableWebcam.getPipelineTimeMs());
-            telemetry.addData("Overhead time ms", switchableWebcam.getOverheadTimeMs());
-            telemetry.addData("Theoretical max FPS", switchableWebcam.getCurrentPipelineMaxFps());
+            telemetry.addData("Current Camera Name ", currentCamera);
+            telemetry.addData("Current Camera Value", currentCameraValue);
             telemetry.update();
 
             /**
@@ -104,43 +109,70 @@ public class SwitchableWebcamExample extends LinearOpMode
             if(gamepad1.a)
             {
                 switchableWebcam.setActiveCamera(WebCamL);
+                //switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                currentCamera = "Left";
             }
             else if(gamepad1.b)
             {
                 switchableWebcam.setActiveCamera(WebCamR);
+                //switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+                currentCamera = "Right";
             }
 
             sleep(100);
         }
     }
 
-    class SamplePipeline extends OpenCvPipeline
+    class TestPipelineInteranl extends OpenCvPipeline
     {
-        Mat processedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
-        Mat processedImageCr = new Mat();   // Matrix to contain just the Cb chanel
+        final double thresholdValue = 120;
+        final double MAX_BINARY_VALUE = 255;
+
+        final int leftMargin = 140;      // Left margin to be cropped off thresholdImage
+        final int righMargin = 140;     // Rign margin to be cropped off
+        final int topMargin = 100;       // Top margin to be cropped off
+        final int botMargin = 100;      // Bottom margin to be cropped off
+
+        Mat cSpaceShiftedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
+        Mat singleChannelImage = new Mat();   // Matrix to contain just the Cb chanel
         Mat thresholdImage = new Mat();     // Matrix to contain adjusted image
+        Mat scanZoneSample = new Mat();
+
+        //double scanZoneValue = 0;
 
         @Override
         public Mat processFrame(Mat input)
         {
             // convert the input RGB image to YCrCb color space
-            Imgproc.cvtColor(input, processedImage, Imgproc.COLOR_RGB2YCrCb);
+            Imgproc.cvtColor(input, cSpaceShiftedImage, Imgproc.COLOR_RGB2Lab); // was Imgproc.COLOR_RGB2YCrCb
             // extract just the Cb (?) channel to isolate the difference in red
-            Core.extractChannel(processedImage, processedImageCr, 2);
+            Core.extractChannel(cSpaceShiftedImage, singleChannelImage, 1);
             // use the threshold Imgproc threshold method to enhance the visual separation between rings and mat floor
-            //Imgproc.threshold(processedImageCr, thresholdImage,thresholdValue, MAX_BINARY_VALUE, Imgproc.THRESH_TOZERO);
+            Imgproc.threshold(singleChannelImage, thresholdImage,thresholdValue, MAX_BINARY_VALUE, Imgproc.THRESH_TOZERO);
+
+            // Compute the scan zone rectangle
+            final double frameWidth = input.cols();
+            final double frameHeight = input.rows();
+            Point upperLeft = new Point(leftMargin, topMargin);
+            Point lowerRight = new Point(frameWidth - righMargin, frameHeight - botMargin);
+            Rect scanZoneRect = new Rect(upperLeft, lowerRight);
+
+            int zoneWidth = scanZoneRect.width;
+            int zoneHeight = scanZoneRect.height;
+
+            // create a submat containing jsut the cropped scan zone
+            scanZoneSample = thresholdImage.submat(new Rect(leftMargin, righMargin, zoneWidth, zoneHeight));
+
+            // convert the MAT scanZoneSample into a single value representing its brightess
+            currentCameraValue = Core.mean(scanZoneSample).val[0];
 
             Imgproc.rectangle(
-                    processedImageCr,
-                    new Point(
-                            input.cols()/4,
-                            input.rows()/4),
-                    new Point(
-                            input.cols()*(3f/4f),
-                            input.rows()*(3f/4f)),
-                    new Scalar(0, 255, 0), 4);
+                    thresholdImage,
+                    upperLeft,
+                    lowerRight,
+                    new Scalar(255, 0, 0), 4); //
 
-            return processedImageCr;
+            return thresholdImage;
         }
     }
 }

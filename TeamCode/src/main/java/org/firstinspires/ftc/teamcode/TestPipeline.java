@@ -21,6 +21,9 @@ class TestPipeline extends OpenCvPipeline
     Mat cSpaceShiftedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
     Mat singleChannelImage = new Mat();   // Matrix to contain just the Cb chanel
     Mat thresholdImage = new Mat();     // Matrix to contain adjusted image
+    Mat scanZoneSample = new Mat();
+
+    double scanZoneValue;
 
     @Override
     public Mat processFrame(Mat input)
@@ -37,7 +40,16 @@ class TestPipeline extends OpenCvPipeline
         final double frameHeight = input.rows();
         Point upperLeft = new Point(leftMargin, topMargin);
         Point lowerRight = new Point(frameWidth - righMargin, frameHeight - botMargin);
-        Rect centerScanRect = new Rect(upperLeft, lowerRight);
+        Rect scanZoneRect = new Rect(upperLeft, lowerRight);
+
+        int zoneWidth = scanZoneRect.width;
+        int zoneHeight = scanZoneRect.height;
+
+        // create a submat containing jsut the cropped scan zone
+        scanZoneSample = thresholdImage.submat(new Rect(leftMargin, righMargin, zoneWidth, zoneHeight));
+
+        // convert the MAT scanZoneSample into a single value representing its brightess
+        scanZoneValue = Core.mean(scanZoneSample).val[0];
 
         Imgproc.rectangle(
                 thresholdImage,
