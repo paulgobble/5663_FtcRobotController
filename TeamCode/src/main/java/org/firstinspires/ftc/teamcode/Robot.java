@@ -38,8 +38,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.Set;
 
@@ -81,6 +87,7 @@ public class Robot {
     public Servo ArmGrip = null;
 
     public OpenCvCamera WebCamL = null;
+    public OpenCvCamera WebCamR = null;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -137,21 +144,50 @@ public class Robot {
         ArmGrip = hwMap.get(Servo.class, "ArmGrip");
 
         // Define webcams
-        int cameraMonitorViewIdL = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
-        WebcamName webcamNameL = hwMap.get(WebcamName.class, "webCamL");
-        OpenCvCamera webCamL = OpenCvCameraFactory.getInstance().createWebcam(webcamNameL, cameraMonitorViewIdL);
-        webCamL.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
+
+        int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
+                .splitLayoutForMultipleViewports(
+                        cameraMonitorViewId, //The container we're splitting
+                        2, //The number of sub-containers to create
+                        OpenCvCameraFactory.ViewportSplitMethod.VERTICALLY); //Whether to split the container vertically or horizontally
+
+        WebCamL = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "webCamL"), viewportContainerIds[0]);
+        WebCamR = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "webCamR"), viewportContainerIds[1]);
+
+        WebCamL.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                // start streaming
-                webCamL.startStreaming(1280, 720);
+                WebCamL.setPipeline(new RedPipeline());
+                WebCamL.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
             }
+
             @Override
             public void onError(int errorCode)
             {
-                // do something with error
+                /*
+                 * This will be called if the camera could not be opened
+                 */
+            }
+        });
+
+        WebCamR.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                WebCamR.setPipeline(new RedPipeline());
+                WebCamR.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+            }
+
+            @Override
+            public void onError(int errorCode)
+            {
+                /*
+                 * This will be called if the camera could not be opened
+                 */
             }
         });
     }
@@ -264,26 +300,49 @@ public class Robot {
         BotArm.setPower(armPower);
         BotArm2.setPower(armPower);
 
-    }
+    } // End Arm
 
     public void SpinDucks (double duckPower) {
 
         Spin.setPower(duckPower);
         Spin2.setPower(duckPower);
 
-    }
+    } // End SpinDucks
 
     public void FlipGrip (double flipperPosition) {
 
         ArmGrip.setPosition(flipperPosition);
 
+    } // End FlipGrip
+
+
+
+
+
+
+
+    /*************************************
+     *  Nested EasyOpenCV pipeline class *
+     *************************************/
+    class RedPipeline extends OpenCvPipeline
+    {
+        @Override
+        public Mat processFrame(Mat input)
+        {
+            Imgproc.rectangle(
+                    input,
+                    new Point(
+                            input.cols()/4,
+                            input.rows()/4),
+                    new Point(
+                            input.cols()*(3f/4f),
+                            input.rows()*(3f/4f)),
+                    new Scalar(0, 255, 0), 4);
+
+            return input;
+        }
     }
 
-    public void checkPositions () {
-        FLPosition = FLDrive.getCurrentPosition();
-        FRPosition = FRDrive.getCurrentPosition();
-        BLPosition = BLDrive.getCurrentPosition();
-        BRPosition = BLDrive.getCurrentPosition();
-        ArmPosition = BotArm.getCurrentPosition();
-    }
-}
+
+
+} // End Robot.class
