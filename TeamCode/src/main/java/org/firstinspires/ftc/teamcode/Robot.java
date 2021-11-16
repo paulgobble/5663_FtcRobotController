@@ -32,7 +32,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -46,8 +45,6 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
-
-import java.util.Set;
 
 /**
  * This is NOT an opmode.
@@ -76,7 +73,6 @@ public class Robot {
     public double BLPosition;
     public double ArmPosition;
 
-
     /* Public OpMode members. */
     public DcMotor FRDrive = null;
     public DcMotor FLDrive = null;
@@ -91,6 +87,13 @@ public class Robot {
 
     public OpenCvCamera WebCamL = null;
     public OpenCvCamera WebCamR = null;
+
+    enum driveModes {
+        Standard,
+        Flipped
+    }
+
+    public driveModes currentDriveMode = driveModes.Standard;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -205,6 +208,12 @@ public class Robot {
             modifier = 0.5;
         }
 
+        if (currentDriveMode ==driveModes.Flipped) {
+
+            modifier *= -1;
+
+        }
+
         double FRPower = -strafe + drive - turn;
         double FLPower = strafe + drive + turn;
         double BRPower = strafe + drive - turn;
@@ -317,6 +326,16 @@ public class Robot {
         ArmGrip.setPosition(flipperPosition);
 
     } // End FlipGrip
+
+
+    // SETTER - Toggle the value of forwardDriveMode
+    public void setForwardDriveMode () {
+        if (currentDriveMode == driveModes.Standard) {
+            currentDriveMode = driveModes.Flipped;
+        } else {
+            currentDriveMode = driveModes.Standard;
+        }
+    }
 
 
 

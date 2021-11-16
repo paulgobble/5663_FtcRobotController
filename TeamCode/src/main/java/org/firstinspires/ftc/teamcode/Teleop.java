@@ -36,6 +36,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.internal.system.Deadline;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -57,6 +61,11 @@ public class Teleop extends OpMode {
 
     Robot robot = new Robot();
 
+    /* Rate limit gamepad button presses to every 500ms. */
+    private final static int ButtonLockout = 500;
+
+    private Deadline buttonPressLimit;
+
     private ElapsedTime runtime = new ElapsedTime();
     double FRpower;
     double FLpower;
@@ -73,6 +82,8 @@ public class Teleop extends OpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
 
         robot.init(hardwareMap);
+
+        buttonPressLimit = new Deadline(ButtonLockout, TimeUnit.MILLISECONDS);
 
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
@@ -173,7 +184,7 @@ public class Teleop extends OpMode {
             robot.FlipGrip(.4);
         }
 
-
+        handleButtons();  // test for pressed toggle buttons
 
 
         // Show the elapsed game time and wheel power.
@@ -193,5 +204,29 @@ public class Teleop extends OpMode {
     @Override
     public void stop() {
     }
+
+
+
+    /*******************************************
+     * Method to handle gamepad toggle buttons *
+     * presses and debounce                    *
+     *******************************************/
+    private void handleButtons () {
+
+        // check if we've waited long enough
+        if (!buttonPressLimit.hasExpired()) {
+            return;
+        }
+
+        boolean openGrip = gamepad2.left_trigger > 0;
+
+        // Set Robot Options
+        if (gamepad1.left_trigger > 0) {
+            robot.setForwardDriveMode();
+            buttonPressLimit.reset();
+        }
+
+    } // End handleButtons
+
 
 }

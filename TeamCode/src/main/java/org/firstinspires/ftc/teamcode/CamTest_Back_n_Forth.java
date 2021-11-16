@@ -1,52 +1,61 @@
-/*
- * Copyright (c) 2020 OpenFTC Team
+/* Copyright (c) 2017 FIRST. All rights reserved.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided that
+ * the following conditions are met:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Redistributions of source code must retain the above copyright notice, this list
+ * of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of FIRST nor the names of its contributors may be used to endorse or
+ * promote products derived from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+ * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package org.firstinspires.ftc.teamcode;
 
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
+import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvSwitchableWebcam;
-import org.openftc.easyopencv.OpenCvCamera;
 
-@TeleOp(name="Cam Test - Switchable", group="Camera Test")
-public class SwitchableWebcamExample extends LinearOpMode
-{
-    //TestPipeline redPipeline = new TestPipeline();
+import java.util.concurrent.TimeUnit;
 
+@TeleOp(name="CamTest_Back_n_Forth", group="Camera Utilities")
+//@Disabled
+public class CamTest_Back_n_Forth extends OpMode {
     WebcamName WebCamL;
     WebcamName WebCamR;
-    String currentCamera = "Right";
+    String currentCamera = "Left";
     double currentCameraValue = 0;
     OpenCvSwitchableWebcam switchableWebcam;
 
@@ -55,15 +64,24 @@ public class SwitchableWebcamExample extends LinearOpMode
     public int topMargin = 100;       // Top margin to be cropped off
     public int botMargin = 100;      // Bottom margin to be cropped off
 
+    //Robot robot = new Robot();
+
+    private ElapsedTime runtime = new ElapsedTime();
+
+    /*
+     * Code to run ONCE when the driver hits INIT
+     */
     @Override
-    public void runOpMode() throws InterruptedException
-    {
+    public void init() {
+
+        //robot.init(hardwareMap);
+
         WebCamL = hardwareMap.get(WebcamName.class, "webCamL");
         WebCamR = hardwareMap.get(WebcamName.class, "webCamR");
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        switchableWebcam = OpenCvCameraFactory.getInstance().createSwitchableWebcam(cameraMonitorViewId, WebCamR, WebCamL);
+        switchableWebcam = OpenCvCameraFactory.getInstance().createSwitchableWebcam(cameraMonitorViewId, WebCamL, WebCamR);
 
         switchableWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -85,51 +103,69 @@ public class SwitchableWebcamExample extends LinearOpMode
             }
         });
 
-        waitForStart();
+        // Tell the driver that initialization is complete.
+        telemetry.addData("Status", "Initialized");
+    } // end init
 
-        while (opModeIsActive())
-        {
-            telemetry.addLine("PRESS A/B TO SWITCH CAMERA\n");
-            telemetry.addData("Current Camera Name ", currentCamera);
-            telemetry.addData("Current Camera Value", currentCameraValue);
-            telemetry.update();
 
-            if(gamepad1.a)
-            {
-                switchableWebcam.setActiveCamera(WebCamL);
-                currentCamera = "Left";
-            }
-            else if(gamepad1.b)
-            {
-                switchableWebcam.setActiveCamera(WebCamR);
-                currentCamera = "Right";
-            }
 
-            sleep(100);
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+    } // End init_loop
 
-            /*while (true){
-                redPipeline.selectCamera(TestPipeline.redCamers.theLeftOne);
-                telemetry.addData("Current Camera", "Left");
-                telemetry.addData("Zone sample value", redPipeline.getScanZoneValue());
-                telemetry.addData("AdjustedLeftMargin", redPipeline.adjustedLeftMargin);
-                telemetry.addData("AdjustedRightMargin", redPipeline.adjustedRightMargin);
-                telemetry.update();
-                sleep(3000);
-                break;
-            }
 
-            while (true){
-                redPipeline.selectCamera(TestPipeline.redCamers.theRightOne);
-                telemetry.addData("Current Camera", "Right");
-                telemetry.addData("Zone sample value", redPipeline.getScanZoneValue());
-                telemetry.addData("AdjustedLeftMargin", redPipeline.adjustedLeftMargin);
-                telemetry.addData("AdjustedRightMargin", redPipeline.adjustedRightMargin);
-                telemetry.update();
-                sleep(3000);
-                break;
-            }*/
+
+    /*
+     * Code to run ONCE when the driver hits PLAY
+     */
+    @Override
+    public void start() {
+        runtime.reset();
+    } // End start
+
+
+
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
+    @Override
+    public void loop() {
+
+        telemetry.addData("Current Camera Name ", currentCamera);
+        telemetry.addData("Current Camera Value", currentCameraValue);
+        telemetry.addData("Runtime", runtime);
+
+        if (runtime.seconds() > 3) {
+            runtime.reset();
+            toggleCameras();
         }
+
+    } // End loop
+
+
+
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
+    @Override
+    public void stop() {
+    } // End stop
+
+
+    public void toggleCameras(){
+
+        if (currentCamera.equals("Left")){
+            currentCamera = "Right";
+        } else {
+            currentCamera = "Left";
+        }
+
     }
+
+
 
     class TestPipelineInternal extends OpenCvPipeline
     {
@@ -153,8 +189,8 @@ public class SwitchableWebcamExample extends LinearOpMode
         public Mat processFrame(Mat input)
         {
             if (currentCamera.equals("Left")) {
-                leftMargin = 70;
-                righMargin = 140;
+                leftMargin = 110;
+                righMargin = 150;
             } else if (currentCamera.equals("Right")) {
                 leftMargin = 140;
                 righMargin = 70;
@@ -198,4 +234,6 @@ public class SwitchableWebcamExample extends LinearOpMode
             return thresholdImage;
         }
     }
-}
+
+
+} // End Class CamTest_Back_n_Forth
