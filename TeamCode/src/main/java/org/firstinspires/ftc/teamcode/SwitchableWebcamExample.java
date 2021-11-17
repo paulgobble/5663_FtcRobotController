@@ -22,6 +22,7 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -40,6 +41,7 @@ import org.openftc.easyopencv.OpenCvSwitchableWebcam;
 import org.openftc.easyopencv.OpenCvCamera;
 
 @TeleOp(name="Cam Test - Switchable", group="Camera Test")
+@Disabled
 public class SwitchableWebcamExample extends LinearOpMode
 {
     //TestPipeline redPipeline = new TestPipeline();

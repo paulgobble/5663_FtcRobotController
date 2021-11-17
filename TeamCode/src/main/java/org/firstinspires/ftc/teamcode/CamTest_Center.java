@@ -29,14 +29,11 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -49,16 +46,12 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvSwitchableWebcam;
 
-import java.util.concurrent.TimeUnit;
+@TeleOp(name="CamTest_Center", group="Camera Utilities")
+//@Disabled
+public class CamTest_Center extends OpMode {
+    WebcamName WebCamC;
 
-@TeleOp(name="CamTest_Back_n_Forth", group="Camera Utilities")
-@Disabled
-public class CamTest_Back_n_Forth extends OpMode {
-    WebcamName WebCamL;
-    WebcamName WebCamR;
-    String currentCamera = "Left";
-    double currentCameraValue = 0;
-    OpenCvSwitchableWebcam switchableWebcam;
+    double scanZoneValue;
 
     public int leftMargin = 140;      // Left margin to be cropped off thresholdImage
     public int righMargin = 140;     // Rign margin to be cropped off
@@ -77,22 +70,24 @@ public class CamTest_Back_n_Forth extends OpMode {
 
         //robot.init(hardwareMap);
 
-        WebCamL = hardwareMap.get(WebcamName.class, "webCamL");
-        WebCamR = hardwareMap.get(WebcamName.class, "webCamR");
+        WebCamC = hardwareMap.get(WebcamName.class, "webCamCenter");
 
+        // Define webcams
+        // Step 1. Get live viewport
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        switchableWebcam = OpenCvCameraFactory.getInstance().createSwitchableWebcam(cameraMonitorViewId, WebCamL, WebCamR);
+        // Step 2. Create a webcam instance
+        WebcamName webcamName = hardwareMap.get(WebcamName.class, "webCamCenter");
+        OpenCvCamera WebCamC = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
-        switchableWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        // Step 3. Open the Camera Device
+        WebCamC.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                switchableWebcam.setPipeline(new TestPipelineInternal());
-
-                switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
-
+                WebCamC.setPipeline(new TestPipelineInternal());
+                WebCamC.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override
@@ -135,14 +130,9 @@ public class CamTest_Back_n_Forth extends OpMode {
     @Override
     public void loop() {
 
-        telemetry.addData("Current Camera Name ", currentCamera);
-        telemetry.addData("Current Camera Value", currentCameraValue);
+        telemetry.addData("scanZoneValue", scanZoneValue);
         telemetry.addData("Runtime", runtime);
 
-        if (runtime.seconds() > 3) {
-            runtime.reset();
-            toggleCameras();
-        }
 
     } // End loop
 
@@ -155,16 +145,6 @@ public class CamTest_Back_n_Forth extends OpMode {
     public void stop() {
     } // End stop
 
-
-    public void toggleCameras(){
-
-        if (currentCamera.equals("Left")){
-            currentCamera = "Right";
-        } else {
-            currentCamera = "Left";
-        }
-
-    }
 
 
 
@@ -180,7 +160,6 @@ public class CamTest_Back_n_Forth extends OpMode {
 
         Mat cSpaceShiftedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
         Mat singleChannelImage = new Mat();   // Matrix to contain just the Cb chanel
-        Mat rotateRightCameraImage = new Mat(); // since the right camera is upsidedown, lets rotate the image 180
         Mat thresholdImage = new Mat();     // Matrix to contain adjusted image
         Mat scanZoneSample = new Mat();
 
@@ -189,14 +168,6 @@ public class CamTest_Back_n_Forth extends OpMode {
         @Override
         public Mat processFrame(Mat input)
         {
-            if (currentCamera.equals("Left")) {
-                leftMargin = 110;
-                righMargin = 150;
-            } else if (currentCamera.equals("Right")) {
-                leftMargin = 140;
-                righMargin = 70;
-            }
-
             // convert the input RGB image to YCrCb color space
             Imgproc.cvtColor(input, cSpaceShiftedImage, Imgproc.COLOR_RGB2Lab); // was Imgproc.COLOR_RGB2YCrCb
             // extract just the Cb (?) channel to isolate the difference in red
@@ -224,7 +195,7 @@ public class CamTest_Back_n_Forth extends OpMode {
             scanZoneSample = thresholdImage.submat(new Rect(leftMargin, righMargin, zoneWidth, zoneHeight));
 
             // convert the MAT scanZoneSample into a single value representing its brightess
-            currentCameraValue = Core.mean(scanZoneSample).val[0];
+            scanZoneValue = Core.mean(scanZoneSample).val[0];
 
             Imgproc.rectangle(
                     thresholdImage,

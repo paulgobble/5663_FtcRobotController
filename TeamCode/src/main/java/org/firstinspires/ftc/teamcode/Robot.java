@@ -85,8 +85,9 @@ public class Robot {
 
     public Servo ArmGrip = null;
 
-    public OpenCvCamera WebCamL = null;
-    public OpenCvCamera WebCamR = null;
+    //public OpenCvCamera WebCamL = null;
+    //public OpenCvCamera WebCamR = null;
+    public OpenCvCamera WebCamCenter = null;
 
     enum driveModes {
         Standard,
@@ -150,24 +151,21 @@ public class Robot {
         ArmGrip = hwMap.get(Servo.class, "ArmGrip");
 
         // Define webcams
+        // Step 1. Get live viewport
         int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
 
-        int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
-                .splitLayoutForMultipleViewports(
-                        cameraMonitorViewId, //The container we're splitting
-                        2, //The number of sub-containers to create
-                        OpenCvCameraFactory.ViewportSplitMethod.VERTICALLY); //Whether to split the container vertically or horizontally
+        // Step 2. Create a webcam instance
+        WebcamName webcamName = hwMap.get(WebcamName.class, "webCamCenter");
+        OpenCvCamera WebCamC = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
-        WebCamL = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "webCamL"), viewportContainerIds[0]);
-        WebCamR = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "webCamR"), viewportContainerIds[1]);
-
-        WebCamL.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        // Step 3. Open the Camera Device
+        WebCamC.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                WebCamL.setPipeline(new RedPipeline());
-                WebCamL.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                WebCamC.setPipeline(new RedPipeline());
+                WebCamC.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override
@@ -179,23 +177,6 @@ public class Robot {
             }
         });
 
-        WebCamR.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
-            @Override
-            public void onOpened()
-            {
-                WebCamR.setPipeline(new RedPipeline());
-                WebCamR.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
-            }
-
-            @Override
-            public void onError(int errorCode)
-            {
-                /*
-                 * This will be called if the camera could not be opened
-                 */
-            }
-        });
     }
 
     public void DriveMecanum(double strafe, double drive, double turn, boolean modify) {
