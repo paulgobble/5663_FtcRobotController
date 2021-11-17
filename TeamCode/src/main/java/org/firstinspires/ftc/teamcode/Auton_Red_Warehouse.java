@@ -14,6 +14,16 @@ public class Auton_Red_Warehouse extends LinearOpMode {
     /* Declare OpMode members. */
     Robot robot = new Robot();
 
+    enum hubLevels {
+        One,  // bottom
+        Two,  // middle
+        Three // top
+    }
+
+    Auton_Red_Ducks.hubLevels targetLevel = Auton_Red_Ducks.hubLevels.One;
+
+    private int increaseArmPosition;
+
     private ElapsedTime runtime = new ElapsedTime();
     private ElapsedTime segmentTime = new ElapsedTime();
 
@@ -47,16 +57,22 @@ public class Auton_Red_Warehouse extends LinearOpMode {
         // THE SCRIPT
 
         // Stage 01
-        drive_n_turn_2_hub();
+        drive_2_hub();
 
         // Stage 02
         raise_arm();
 
-        //Stage 03
-        lower_arm();
+        // Stage 01.5
+        turn_2_hub();
+
+        // Stage 02.7
+        dropCargo();
 
         //Stage 04
         drive_n_turn_back();
+
+        //Stage 03
+        lower_arm();
 
         //Stage 05
         strafe_to_warehouse_position();
@@ -89,12 +105,12 @@ public class Auton_Red_Warehouse extends LinearOpMode {
      **************************/
 
     // SCRIPT Stage 01
-    private void drive_n_turn_2_hub(){
+    private void drive_2_hub(){
 
         // insure the opMode is still active
         if (opModeIsActive()){
 
-            telemetry.addData("Stage:", "01, drive_n_trun_2_hub");
+            telemetry.addData("Stage:", "01, drive_2_hub");
             telemetry.update();
 
             robot.FlipGrip(.2);
@@ -102,20 +118,10 @@ public class Auton_Red_Warehouse extends LinearOpMode {
 
             // Drive Targets - move forward
             double speed = .3;
-            double FL_Distance = -11; // all same sign indicates drive
-            double FR_distance = -11;
-            double BL_distance = -11;
-            double BR_distance = -11; // as -16
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            // Drive Targets - turn towards hub
-            speed = .3;
-            FL_Distance = -10; // alternating signs indicate a turn
-            FR_distance = 10;
-            BL_distance = -10;
-            BR_distance = 10; //was 12
+            double FL_Distance = -10; // all same sign indicates drive
+            double FR_distance = -10;
+            double BL_distance = -10;
+            double BR_distance = -10; // was -10
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
@@ -127,11 +133,48 @@ public class Auton_Red_Warehouse extends LinearOpMode {
     } //end drive_n_turn
 
 
+
+
+    // SCRIPT Stage 01.5
+    private void turn_2_hub(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "01.5, trun_2_hub");
+            telemetry.update();
+
+            // Drive Targets - turn towards hub
+            double speed = .3;
+            double FL_Distance = -10; // alternating signs indicate a turn
+            double FR_distance = 10;
+            double BL_distance = -10;
+            double BR_distance = 10; //was 12
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            sleep(1000);
+
+        }
+
+    } //end turn_2_hub
+
+
+
+
+
     // SCRIPT Stage 02
     private void raise_arm(){
 
 
-        int increaseArmPosition = 5500; // was 5000
+        if (targetLevel == Auton_Red_Ducks.hubLevels.Three) {
+            increaseArmPosition = 5250; // was 5000
+        } else if (targetLevel == Auton_Red_Ducks.hubLevels.Two) {
+            increaseArmPosition = 5800;
+        } else {
+            increaseArmPosition = 6500;
+        }
 
         int desiredArmPosition = robot.BotArm.getCurrentPosition() + increaseArmPosition;
 
@@ -181,11 +224,26 @@ public class Auton_Red_Warehouse extends LinearOpMode {
 
         //sleep(2000);
 
-        robot.FlipGrip(.3);
+        //robot.FlipGrip(.3);
 
-        sleep(500); // just waiting for time to read the telemetry
+        sleep(1000); // just waiting for time to read the telemetry
 
     } //end raise_arm
+
+
+
+    // SCRIPT Stage 2.7
+    private void dropCargo(){
+
+        robot.FlipGrip(.3);
+        sleep(1000);
+
+    }
+
+
+
+
+
 
     // SCRIPT Stage 03
     private void lower_arm(){
@@ -260,10 +318,10 @@ public class Auton_Red_Warehouse extends LinearOpMode {
 
             // Drive Targets - move forward
             double speed = .3;
-            double FL_Distance = -11; // all same sign indicates drive
-            double FR_distance = 11;
-            double BL_distance = -11;
-            double BR_distance = 11; // as -16
+            double FL_Distance = -10; // all same sign indicates drive
+            double FR_distance = 10;
+            double BL_distance = -10;
+            double BR_distance = 10; // as -11
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
@@ -288,10 +346,10 @@ public class Auton_Red_Warehouse extends LinearOpMode {
 
             // Drive Targets - move forward
             double speed = .3;
-            double FL_Distance = 20; // all same sign indicates drive
-            double FR_distance = -20;
-            double BL_distance = -20;
-            double BR_distance = 20; // as -16
+            double FL_Distance = 22; // all same sign indicates drive
+            double FR_distance = -22;
+            double BL_distance = -22;
+            double BR_distance = 22; // was 22
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
