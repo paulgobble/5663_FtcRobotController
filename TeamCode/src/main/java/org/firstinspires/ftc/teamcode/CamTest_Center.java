@@ -55,9 +55,13 @@ public class CamTest_Center extends OpMode {
 
     //ArrayList<Boolean> scanValues = new ArrayList<>(); // Create an ArrayList object to hold results of scans from pipeline
 
-    Boolean leftCameraFoundTSE = false;     // Was the TSE found on the left side of the webcam frame
-    Boolean rightCameraFoundTSE = false;    // Was the TSE found on the right side of the webcam frame
-    Boolean visionScanComplete = false;     // has the pipeline completed a scan
+    /*********************
+     *  Pipeline Results *
+     *********************/
+
+    public Boolean leftCameraFoundTSE = false;     // Was the TSE found on the left side of the webcam frame    // moved 2 robot
+    public Boolean rightCameraFoundTSE = false;    // Was the TSE found on the right side of the webcam frame   // moved 2 robot
+    public Boolean visionScanComplete = false;     // has the pipeline completed a scan                         // moved 2 robot
 
     enum hubLevels {
         One,  // bottom
@@ -162,7 +166,7 @@ public class CamTest_Center extends OpMode {
     public void stop() {
     } // End stop
 
-    private void decoderRingA() {  // use this decoder ring for Red Warehouse and Blue Duck
+    private void decoderRingA() {  // use this decoder ring for Red Warehouse and Blue Duck // moved to auton_b_d
 
         if (leftCameraFoundTSE) {
             targetLevel = hubLevels.One;
@@ -194,7 +198,7 @@ public class CamTest_Center extends OpMode {
     }
 
 
-    class TestPipelineInternal extends OpenCvPipeline
+    class TestPipelineInternal extends OpenCvPipeline // moved to robot
     {
         final double thresholdValue = 120;
         final double MAX_BINARY_VALUE = 255;

@@ -56,6 +56,9 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
         // THE SCRIPT
 
+        // Stage 00
+        stop_n_stare();
+
         // Stage 01
         drive_2_hub();
 
@@ -106,7 +109,20 @@ public class Auton_Blue_Ducks extends LinearOpMode {
      *                               *
      *********************************/
 
+    private void decoderRingA() {  // use this decoder ring for Red Warehouse and Blue Duck
 
+        if (robot.leftCameraFoundTSE) {
+            targetLevel = hubLevels.One;
+            telemetry.addData("Target Level", targetLevel);
+        } else if (robot.rightCameraFoundTSE) {
+            targetLevel = hubLevels.Two;
+            telemetry.addData("Target Level", targetLevel);
+        } else {
+            targetLevel = hubLevels.Three;
+            telemetry.addData("Target Level", targetLevel);
+        }
+        telemetry.update();
+    }
 
 
 
@@ -118,6 +134,19 @@ public class Auton_Blue_Ducks extends LinearOpMode {
      *        SCRIPT          *
      *                        *
      **************************/
+
+    // SCRIPT Stage 00
+    private void stop_n_stare(){
+        if (opModeIsActive()) {
+
+            sleep(1000); // give robot's pipeline time to startflowing
+
+            decoderRingA();         // take the data provided by the pipeline and decode it to discover the targetLevel
+
+            sleep(1000);
+        }
+    } // End stop_n_stare
+
 
     // SCRIPT Stage 01
     private void drive_2_hub(){

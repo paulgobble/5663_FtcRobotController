@@ -37,8 +37,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -46,32 +48,15 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-/**
- * This is NOT an opmode.
- *
- * This class can be used to define all the specific hardware for a single robot.
- * In this case that robot is a Pushbot.
- * See PushbotTeleopTank_Iterative and others classes starting with "Pushbot" for usage examples.
- *
- * This hardware class assumes the following device names have been configured on the robot:
- * Note:  All names are lower case and some have single spaces between words.
- *
- * Motor channel:  Left  drive motor:        "left_drive"
- * Motor channel:  Right drive motor:        "right_drive"
- * Motor channel:  Manipulator drive motor:  "left_arm"
- * Servo channel:  Servo to open left claw:  "left_hand"
- * Servo channel:  Servo to open right claw: "right_hand"
- */
+
 public class Robot {
     /* Public Variables */
-    public double leftCameraView;   // set by vision pipeline
-    public double rightCameraView;
 
-    public double FRPosition;  // I'm not sure we use these
-    public double FLPosition;
-    public double BRPosition;
-    public double BLPosition;
-    public double ArmPosition;
+    //  Pipeline Results *
+    public Boolean leftCameraFoundTSE = false;     // Was the TSE found on the left side of the webcam frame
+    public Boolean rightCameraFoundTSE = false;    // Was the TSE found on the right side of the webcam frame
+    public Boolean visionScanComplete = false;     // has the pipeline completed a scan
+
 
     /* Public OpMode members. */
     public DcMotor FRDrive = null;
@@ -85,15 +70,12 @@ public class Robot {
 
     public Servo ArmGrip = null;
 
-    //public OpenCvCamera WebCamL = null;
-    //public OpenCvCamera WebCamR = null;
-    public OpenCvCamera WebCamCenter = null;
+    public OpenCvCamera WebCamC = null;
 
     enum driveModes {
         Standard,
         Flipped
     }
-
     public driveModes currentDriveMode = driveModes.Standard;
 
     /* local OpMode members. */
@@ -164,7 +146,7 @@ public class Robot {
             @Override
             public void onOpened()
             {
-                WebCamC.setPipeline(new RedPipeline());
+                WebCamC.setPipeline(new RedPipeline_internal());
                 WebCamC.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
@@ -189,7 +171,7 @@ public class Robot {
             modifier = 0.5;
         }
 
-        if (currentDriveMode ==driveModes.Flipped) {
+        if (currentDriveMode == driveModes.Flipped) {
 
             modifier *= -1;
 
@@ -327,25 +309,96 @@ public class Robot {
     /*************************************
      *  Nested EasyOpenCV pipeline class *
      *************************************/
-    class RedPipeline extends OpenCvPipeline
+    class RedPipeline_internal extends OpenCvPipeline
     {
+        final double thresholdValue = 120;
+        final double MAX_BINARY_VALUE = 255;
+
+        final int leftMargin = 145;      // Left margin to be cropped off thresholdImage
+        final int righMargin = 145;     // Rign margin to be cropped off
+        final int topMargin = 100;       // Top margin to be cropped off
+        final int botMargin = 100;      // Bottom margin to be cropped off
+
+        Mat cSpaceShiftedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
+        Mat singleChannelImage = new Mat();   // Matrix to contain just the Cb chanel
+        Mat thresholdImage = new Mat();     // Matrix to contain adjusted image
+        Mat scanZoneSample = new Mat();
+
+        //double scanZoneValue = 0;
+
         @Override
         public Mat processFrame(Mat input)
         {
+            /**********************
+             * Process the ferame *
+             **********************/
+            // convert the input RGB image to LAB color space
+            Imgproc.cvtColor(input, cSpaceShiftedImage, Imgproc.COLOR_RGB2Lab); // was Imgproc.COLOR_RGB2YCrCb
+            // extract just the A channel to isolate the difference in green
+            Core.extractChannel(cSpaceShiftedImage, singleChannelImage, 1);
+            // use the threshold Imgproc threshold method to enhance the visual separation between rings and mat floor
+            Imgproc.threshold(singleChannelImage, thresholdImage,thresholdValue, MAX_BINARY_VALUE, Imgproc.THRESH_TOZERO);
+
+
+            /*****************************
+             * Loop over the target area *
+             * taking samples            *
+             *****************************/
+            final int frameWidth = input.cols();
+            final int frameHeight = input.rows();
+
+            int scanWidth = 50; // was 30
+            int scanHeight = frameHeight - topMargin - botMargin;
+            int leftScanPadding = 0;
+            int rightScanPadding = 0;
+            int scanStep = 25;
+
+            double testThreshold = 10; // max value to test as TSE green
+            int leftScanZoneLimit = 4;      // zone furthest to right to be considered a left scan zone
+            int rightScanZoneLimit = 10;    // zone furthest to right to be considered a right scan zone
+
+            double thisScanValue;
+            boolean foundTSE;
+
+            int scanLoopCounter = 0;
+
+            if (!visionScanComplete) {
+                for (int thisX = leftScanPadding; thisX < frameWidth - scanWidth - rightScanPadding; thisX = thisX + scanStep) {
+
+                    // copy just target zone to a new matrix
+                    scanZoneSample = thresholdImage.submat(new Rect(thisX, topMargin, scanWidth, scanHeight));
+                    // convert the matrix single color channel averaged numeric value
+                    thisScanValue = Core.mean(scanZoneSample).val[0];
+                    // decide if this value indicates presence of the TSE
+                    foundTSE = (thisScanValue <= testThreshold);
+                    // If a TSE is found, determine where it was seen and pass it back to robot
+                    if (foundTSE){
+                        if(scanLoopCounter <= leftScanZoneLimit) {
+                            leftCameraFoundTSE = true;
+                        } else if (scanLoopCounter <= rightScanZoneLimit){
+                            rightCameraFoundTSE = true;
+                        }
+                    }
+                    // increment the counter
+                    scanLoopCounter += 1;
+                }
+                visionScanComplete = true;
+            }
+
+            // Compute the scan zone rectangle
+            Point upperLeft = new Point(leftMargin, topMargin);
+            Point lowerRight = new Point(frameWidth - righMargin, frameHeight - botMargin);
+            Rect scanZoneRect = new Rect(upperLeft, lowerRight);
+
             Imgproc.rectangle(
-                    input,
-                    new Point(
-                            input.cols()/4,
-                            input.rows()/4),
-                    new Point(
-                            input.cols()*(3f/4f),
-                            input.rows()*(3f/4f)),
-                    new Scalar(0, 255, 0), 4);
+                    thresholdImage,
+                    upperLeft,
+                    lowerRight,
+                    new Scalar(255, 0, 0), 1); //
 
-            return input;
-        }
-    }
+            return thresholdImage;
+        } // End processFrame
 
-
+    } // End class RedPipeline_internal
 
 } // End Robot.class
