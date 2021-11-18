@@ -46,17 +46,16 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvSwitchableWebcam;
 
+import java.util.ArrayList;
+
 @TeleOp(name="CamTest_Center", group="Camera Utilities")
 //@Disabled
 public class CamTest_Center extends OpMode {
     WebcamName WebCamC;
 
-    double scanZoneValue;
+    ArrayList<Boolean> scanValues = new ArrayList<>(); // Create an ArrayList object to hold results of scans from pipeline
 
-    public int leftMargin = 140;      // Left margin to be cropped off thresholdImage
-    public int righMargin = 140;     // Rign margin to be cropped off
-    public int topMargin = 100;       // Top margin to be cropped off
-    public int botMargin = 100;      // Bottom margin to be cropped off
+    Boolean visionScanComplete = false;  // has the pipeline completed a scan
 
     //Robot robot = new Robot();
 
@@ -130,7 +129,9 @@ public class CamTest_Center extends OpMode {
     @Override
     public void loop() {
 
-        telemetry.addData("scanZoneValue", scanZoneValue);
+        telemetry.addData("Scan complete", visionScanComplete);
+        telemetry.addData("scanZoneValue is empty", scanValues.isEmpty());
+        telemetry.addData("Scan results", scanValues.toString());
         telemetry.addData("Runtime", runtime);
 
 
@@ -153,10 +154,10 @@ public class CamTest_Center extends OpMode {
         final double thresholdValue = 120;
         final double MAX_BINARY_VALUE = 255;
 
-        /*final int leftMargin = 140;      // Left margin to be cropped off thresholdImage
-        final int righMargin = 140;     // Rign margin to be cropped off
+        final int leftMargin = 145;      // Left margin to be cropped off thresholdImage
+        final int righMargin = 145;     // Rign margin to be cropped off
         final int topMargin = 100;       // Top margin to be cropped off
-        final int botMargin = 100;      // Bottom margin to be cropped off*/
+        final int botMargin = 100;      // Bottom margin to be cropped off
 
         Mat cSpaceShiftedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
         Mat singleChannelImage = new Mat();   // Matrix to contain just the Cb chanel
@@ -168,26 +169,61 @@ public class CamTest_Center extends OpMode {
         @Override
         public Mat processFrame(Mat input)
         {
-            // convert the input RGB image to YCrCb color space
+            /**********************
+             * Process the ferame *
+             **********************/
+            // convert the input RGB image to LAB color space
             Imgproc.cvtColor(input, cSpaceShiftedImage, Imgproc.COLOR_RGB2Lab); // was Imgproc.COLOR_RGB2YCrCb
-            // extract just the Cb (?) channel to isolate the difference in red
+            // extract just the A channel to isolate the difference in green
             Core.extractChannel(cSpaceShiftedImage, singleChannelImage, 1);
-
-            // Rotate image from right camera
-            //if (currentCamera.equals("Right")) {
-            //    Core.rotate(singleChannelImage, rotateRightCameraImage, Core.ROTATE_180);
-            //}
-
             // use the threshold Imgproc threshold method to enhance the visual separation between rings and mat floor
             Imgproc.threshold(singleChannelImage, thresholdImage,thresholdValue, MAX_BINARY_VALUE, Imgproc.THRESH_TOZERO);
 
+
+            /*****************************
+             * Loop over the target area *
+             * taking samples            *
+             *****************************/
+            final int frameWidth = input.cols();
+            final int frameHeight = input.rows();
+
+            int scanWidth = 50; // was 30
+            int scanHeight = frameHeight - topMargin - botMargin;
+            int leftScanPadding = 0;
+            int rightScanPadding = 0;
+            int scanStep = 10;
+
+            double testThreshold = 10;  // max value to test as TSE green
+
+            double thisScanValue;
+            boolean foundTSE;
+
+            if (!visionScanComplete) {
+                for (int thisX = leftScanPadding; thisX < frameWidth - scanWidth - rightScanPadding; thisX = thisX + scanStep) {
+
+                    // copy just target zone to a new matrix
+                    scanZoneSample = thresholdImage.submat(new Rect(thisX, topMargin, scanWidth, scanHeight));
+                    // convert the matrix single color channel averaged numeric value
+                    thisScanValue = Core.mean(scanZoneSample).val[0];
+                    // descide if this value idicates presence of the TSE
+                    foundTSE = (thisScanValue <= testThreshold);
+                    // add this test result to ListArray of test results
+                    scanValues.add((boolean) foundTSE);
+
+                }
+
+                visionScanComplete = true;
+
+            }
+
+
+
             // Compute the scan zone rectangle
-            final double frameWidth = input.cols();
-            final double frameHeight = input.rows();
+
             Point upperLeft = new Point(leftMargin, topMargin);
             Point lowerRight = new Point(frameWidth - righMargin, frameHeight - botMargin);
             Rect scanZoneRect = new Rect(upperLeft, lowerRight);
-
+/*
             int zoneWidth = scanZoneRect.width;
             int zoneHeight = scanZoneRect.height;
 
@@ -195,7 +231,7 @@ public class CamTest_Center extends OpMode {
             scanZoneSample = thresholdImage.submat(new Rect(leftMargin, righMargin, zoneWidth, zoneHeight));
 
             // convert the MAT scanZoneSample into a single value representing its brightess
-            scanZoneValue = Core.mean(scanZoneSample).val[0];
+            scanZoneValue = Core.mean(scanZoneSample).val[0]; */
 
             Imgproc.rectangle(
                     thresholdImage,
