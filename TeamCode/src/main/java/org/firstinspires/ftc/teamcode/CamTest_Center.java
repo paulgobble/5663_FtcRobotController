@@ -53,11 +53,21 @@ import java.util.ArrayList;
 public class CamTest_Center extends OpMode {
     WebcamName WebCamC;
 
-    ArrayList<Boolean> scanValues = new ArrayList<>(); // Create an ArrayList object to hold results of scans from pipeline
+    //ArrayList<Boolean> scanValues = new ArrayList<>(); // Create an ArrayList object to hold results of scans from pipeline
 
-    Boolean visionScanComplete = false;  // has the pipeline completed a scan
+    Boolean leftCameraFoundTSE = false;     // Was the TSE found on the left side of the webcam frame
+    Boolean rightCameraFoundTSE = false;    // Was the TSE found on the right side of the webcam frame
+    Boolean visionScanComplete = false;     // has the pipeline completed a scan
 
-    //Robot robot = new Robot();
+    enum hubLevels {
+        One,  // bottom
+        Two,  // middle
+        Three // top
+    }
+
+    hubLevels targetLevel = hubLevels.Three;
+
+
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -130,10 +140,15 @@ public class CamTest_Center extends OpMode {
     public void loop() {
 
         telemetry.addData("Scan complete", visionScanComplete);
-        telemetry.addData("scanZoneValue is empty", scanValues.isEmpty());
-        telemetry.addData("Scan results", scanValues.toString());
-        telemetry.addData("Number of Scans", scanValues.size());
+        telemetry.addData("Left Camera Found TSE ", leftCameraFoundTSE);
+        telemetry.addData("Right Camera Found TSE", rightCameraFoundTSE);
+        //telemetry.addData("scanZoneValue is empty", scanValues.isEmpty());
+        //telemetry.addData("Scan results", scanValues.toString());
+        //telemetry.addData("Number of Scans", scanValues.size());
         telemetry.addData("Runtime", runtime);
+
+        //decoderRingA();
+        decoderRingB();
 
 
     } // End loop
@@ -147,7 +162,36 @@ public class CamTest_Center extends OpMode {
     public void stop() {
     } // End stop
 
+    private void decoderRingA() {  // use this decoder ring for Red Warehouse and Blue Duck
 
+        if (leftCameraFoundTSE) {
+            targetLevel = hubLevels.One;
+            telemetry.addData("Target Level", targetLevel);
+        } else if (rightCameraFoundTSE) {
+            targetLevel = hubLevels.Two;
+            telemetry.addData("Target Level", targetLevel);
+        } else {
+            targetLevel = hubLevels.Three;
+            telemetry.addData("Target Level", targetLevel);
+        }
+
+    }
+
+
+    private void decoderRingB() {  // use this decoder ring for Red Duck and Blue Warehouse
+
+        if (leftCameraFoundTSE) {
+            targetLevel = hubLevels.Two;
+            telemetry.addData("Target Level", targetLevel);
+        } else if (rightCameraFoundTSE) {
+            targetLevel = hubLevels.Three;
+            telemetry.addData("Target Level", targetLevel);
+        } else {
+            targetLevel = hubLevels.One;
+            telemetry.addData("Target Level", targetLevel);
+        }
+
+    }
 
 
     class TestPipelineInternal extends OpenCvPipeline
@@ -194,13 +238,18 @@ public class CamTest_Center extends OpMode {
             int rightScanPadding = 0;
             int scanStep = 25;
 
-            double testThreshold = 10;  // max value to test as TSE green
+            double testThreshold = 10; // max value to test as TSE green
+            int leftScanZoneLimit = 4;      // zone furthest to right to be considered a left scan zone
+            int rightScanZoneLimit = 10;    // zone furthest to right to be considered a right scan zone
 
             double thisScanValue;
             boolean foundTSE;
 
+            int scanLoopCounter = 0;
+
             if (!visionScanComplete) {
                 for (int thisX = leftScanPadding; thisX < frameWidth - scanWidth - rightScanPadding; thisX = thisX + scanStep) {
+
 
                     // copy just target zone to a new matrix
                     scanZoneSample = thresholdImage.submat(new Rect(thisX, topMargin, scanWidth, scanHeight));
@@ -209,8 +258,18 @@ public class CamTest_Center extends OpMode {
                     // descide if this value idicates presence of the TSE
                     foundTSE = (thisScanValue <= testThreshold);
                     // add this test result to ListArray of test results
-                    scanValues.add((boolean) foundTSE);
+                    //scanValues.add((boolean) foundTSE);
+                    if (foundTSE){
 
+                        if(scanLoopCounter <= leftScanZoneLimit) {
+                            leftCameraFoundTSE = true;
+                        } else if (scanLoopCounter <= rightScanZoneLimit){
+                            rightCameraFoundTSE = true;
+                        }
+                    }
+
+                    // increment the counter
+                    scanLoopCounter += 1;
                 }
 
                 visionScanComplete = true;
