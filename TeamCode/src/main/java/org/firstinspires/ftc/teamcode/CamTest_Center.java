@@ -132,6 +132,7 @@ public class CamTest_Center extends OpMode {
         telemetry.addData("Scan complete", visionScanComplete);
         telemetry.addData("scanZoneValue is empty", scanValues.isEmpty());
         telemetry.addData("Scan results", scanValues.toString());
+        telemetry.addData("Number of Scans", scanValues.size());
         telemetry.addData("Runtime", runtime);
 
 
@@ -191,7 +192,7 @@ public class CamTest_Center extends OpMode {
             int scanHeight = frameHeight - topMargin - botMargin;
             int leftScanPadding = 0;
             int rightScanPadding = 0;
-            int scanStep = 10;
+            int scanStep = 25;
 
             double testThreshold = 10;  // max value to test as TSE green
 
