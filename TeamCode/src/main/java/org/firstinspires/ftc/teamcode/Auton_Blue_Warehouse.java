@@ -20,7 +20,7 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
         Three // top
     }
 
-    Auton_Red_Ducks.hubLevels targetLevel = Auton_Red_Ducks.hubLevels.One;
+    Auton_Red_Ducks.hubLevels targetLevel = Auton_Red_Ducks.hubLevels.Three;
 
     private int increaseArmPosition;
 

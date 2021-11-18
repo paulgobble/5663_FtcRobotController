@@ -89,6 +89,12 @@ public class Auton_Blue_Ducks extends LinearOpMode {
         //Stage 08
         spin_duck();
 
+        //Stage 07 - again
+        drive_closer_to_ducks();
+
+        //Stage 08 - again
+        spin_duck();
+
         //Stage 09
         back_up_from_ducks_strafe_to_unit();
 
@@ -97,6 +103,9 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
         //Stage 10
         ark_strafe();
+
+        // SCRIPT Stage 11
+        drive_just_a_bit_more();
 
     } // end runOpMode
 
@@ -143,7 +152,6 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
             decoderRingA();         // take the data provided by the pipeline and decode it to discover the targetLevel
 
-            sleep(1000);
         }
     } // End stop_n_stare
 
@@ -478,15 +486,15 @@ public class Auton_Blue_Ducks extends LinearOpMode {
             telemetry.update();
 
             // Start spinning
-            robot.Spin.setPower(.6);
-            robot.Spin2.setPower(.6); // flipped
+            robot.Spin.setPower(.4);
+            robot.Spin2.setPower(.4); // was .6
 
             // Drive Targets - move forward
             double speed = .05;
-            double FL_Distance = 6; // all same sign indicates drive
-            double FR_distance = 6;
-            double BL_distance = 6;
-            double BR_distance = 6; // was 4
+            double FL_Distance = 10; // all same sign indicates drive
+            double FR_distance = 10;
+            double BL_distance = 10;
+            double BR_distance = 10; // was 6
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
@@ -507,8 +515,8 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
         while (opModeIsActive()){
 
-            robot.Spin.setPower(.6);
-            robot.Spin2.setPower(.6); // flipped
+            robot.Spin.setPower(.4);
+            robot.Spin2.setPower(.4); // was .6
 
             sleep(SpinTime);
             break;
@@ -555,15 +563,40 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
             // Drive Targets - move forward
             double speed = .3;
-            double FL_Distance = -30; // all same sign indicates drive
-            double FR_distance = 30;
-            double BL_distance = 18;
-            double BR_distance = -18; //
+            double FL_Distance = -40; // all same sign indicates drive
+            double FR_distance = 40;
+            double BL_distance = 22;
+            double BR_distance = -22; //  was 30 and 18
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
 
             sleep(500);
+
+        }
+
+    } //end
+
+
+    // SCRIPT Stage 11
+    private void drive_just_a_bit_more(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "11, drive_just_a_bit_more");
+            telemetry.update();
+
+            // Drive Targets - move forward
+            double speed = .2; // was .3
+            double FL_Distance = -2; // all same sign indicates drive
+            double FR_distance = -2;
+            double BL_distance = -2;
+            double BR_distance = -2; //was -3
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
 
         }
 
