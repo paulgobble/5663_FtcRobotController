@@ -20,7 +20,7 @@ public class Auton_Red_Warehouse extends LinearOpMode {
         Three // top
     }
 
-    Auton_Red_Ducks.hubLevels targetLevel = Auton_Red_Ducks.hubLevels.One;
+    hubLevels targetLevel = hubLevels.Three;
 
     private int increaseArmPosition;
 
@@ -55,6 +55,9 @@ public class Auton_Red_Warehouse extends LinearOpMode {
         runtime.reset();
 
         // THE SCRIPT
+
+        // SCRIPT Stage 00
+        stop_n_stare();
 
         // Stage 01
         drive_2_hub();
@@ -92,7 +95,20 @@ public class Auton_Red_Warehouse extends LinearOpMode {
      *********************************/
 
 
+    private void decoderRingA() {  // use this decoder ring for Red Warehouse and Blue Duck
 
+        if (robot.leftCameraFoundTSE) {
+            targetLevel = hubLevels.One;
+            telemetry.addData("Target Level", targetLevel);
+        } else if (robot.rightCameraFoundTSE) {
+            targetLevel = hubLevels.Two;
+            telemetry.addData("Target Level", targetLevel);
+        } else {
+            targetLevel = hubLevels.Three;
+            telemetry.addData("Target Level", targetLevel);
+        }
+        telemetry.update();
+    }
 
 
 
@@ -103,6 +119,19 @@ public class Auton_Red_Warehouse extends LinearOpMode {
      *        SCRIPT          *
      *                        *
      **************************/
+
+    // SCRIPT Stage 00
+    private void stop_n_stare(){
+        if (opModeIsActive()) {
+
+            sleep(1000); // give robot's pipeline time to startflowing
+
+            decoderRingA();         // take the data provided by the pipeline and decode it to discover the targetLevel
+
+        }
+    } // End stop_n_stare
+
+
 
     // SCRIPT Stage 01
     private void drive_2_hub(){
@@ -146,10 +175,10 @@ public class Auton_Red_Warehouse extends LinearOpMode {
 
             // Drive Targets - turn towards hub
             double speed = .3;
-            double FL_Distance = -10; // alternating signs indicate a turn
-            double FR_distance = 10;
-            double BL_distance = -10;
-            double BR_distance = 10; //was 12
+            double FL_Distance = -9; // alternating signs indicate a turn
+            double FR_distance = 9;
+            double BL_distance = -9;
+            double BR_distance = 9; //was 10
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
@@ -168,12 +197,12 @@ public class Auton_Red_Warehouse extends LinearOpMode {
     private void raise_arm(){
 
 
-        if (targetLevel == Auton_Red_Ducks.hubLevels.Three) {
-            increaseArmPosition = 5250; // was 5000
-        } else if (targetLevel == Auton_Red_Ducks.hubLevels.Two) {
+        if (targetLevel == hubLevels.Three) {
+            increaseArmPosition = 5000; // was 5000
+        } else if (targetLevel == hubLevels.Two) {
             increaseArmPosition = 5800;
         } else {
-            increaseArmPosition = 6500;
+            increaseArmPosition = 6300;
         }
 
         int desiredArmPosition = robot.BotArm.getCurrentPosition() + increaseArmPosition;

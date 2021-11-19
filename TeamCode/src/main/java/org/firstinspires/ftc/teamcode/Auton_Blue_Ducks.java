@@ -225,11 +225,11 @@ public class Auton_Blue_Ducks extends LinearOpMode {
         robot.FlipGrip(.2); //Close Gripper
 
         if (targetLevel == hubLevels.Three) {
-            increaseArmPosition = 5250; // was 5000
+            increaseArmPosition = 5000; // was 5000
         } else if (targetLevel == hubLevels.Two) {
             increaseArmPosition = 5800;
         } else {
-            increaseArmPosition = 6500;
+            increaseArmPosition = 6300;
         }
 
         int desiredArmPosition = robot.BotArm.getCurrentPosition() + increaseArmPosition;

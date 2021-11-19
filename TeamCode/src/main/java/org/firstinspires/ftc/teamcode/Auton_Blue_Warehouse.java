@@ -20,7 +20,7 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
         Three // top
     }
 
-    Auton_Red_Ducks.hubLevels targetLevel = Auton_Red_Ducks.hubLevels.Three;
+    hubLevels targetLevel = hubLevels.Three;
 
     private int increaseArmPosition;
 
@@ -56,6 +56,9 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
 
         // THE SCRIPT
 
+        // SCRIPT Stage 00
+        stop_n_stare();
+
         // Stage 01
         drive_2_hub();
 
@@ -80,6 +83,7 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
         //Stage 06
         outta_the_way();
 
+
     } // end runOpMode
 
 
@@ -92,7 +96,20 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
      *********************************/
 
 
+    private void decoderRingB() {  // use this decoder ring for Red Duck and Blue Warehouse
 
+        if (robot.leftCameraFoundTSE) {
+            targetLevel = hubLevels.Two;
+            telemetry.addData("Target Level", targetLevel);
+        } else if (robot.rightCameraFoundTSE) {
+            targetLevel = hubLevels.Three;
+            telemetry.addData("Target Level", targetLevel);
+        } else {
+            targetLevel = hubLevels.One;
+            telemetry.addData("Target Level", targetLevel);
+        }
+
+    }
 
 
 
@@ -103,6 +120,19 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
      *        SCRIPT          *
      *                        *
      **************************/
+
+
+    // SCRIPT Stage 00
+    private void stop_n_stare(){
+        if (opModeIsActive()) {
+
+            sleep(1000); // give robot's pipeline time to startflowing
+
+            decoderRingB();         // take the data provided by the pipeline and decode it to discover the targetLevel
+
+        }
+    } // End stop_n_stare
+
 
     // SCRIPT Stage 01
     private void drive_2_hub(){
@@ -168,12 +198,12 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
     private void raise_arm(){
 
 
-        if (targetLevel == Auton_Red_Ducks.hubLevels.Three) {
-            increaseArmPosition = 5250; // was 5000
-        } else if (targetLevel == Auton_Red_Ducks.hubLevels.Two) {
+        if (targetLevel == hubLevels.Three) {
+            increaseArmPosition = 5000; // was 5000
+        } else if (targetLevel == hubLevels.Two) {
             increaseArmPosition = 5800;
         } else {
-            increaseArmPosition = 6500;
+            increaseArmPosition = 6300;
         }
 
         int desiredArmPosition = robot.BotArm.getCurrentPosition() + increaseArmPosition;
