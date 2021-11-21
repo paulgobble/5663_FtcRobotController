@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Auton_Blue_Warehouse", group="Autonomous")
+@Autonomous(name="Auton_Blue_Warehouse_park", group="Autonomous")
 //@Disabled
-public class Auton_Blue_Warehouse extends LinearOpMode {
+public class Auton_Blue_Warehouse_Park extends LinearOpMode {
 
     /* Declare OpMode members. */
     Robot robot = new Robot();
@@ -79,7 +79,7 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
         strafe_to_warehouse_position();
 
         //Stage 06
-        outta_the_way();
+        //outta_the_way();
 
 
     } // end runOpMode
