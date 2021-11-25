@@ -161,14 +161,15 @@ public class Robot {
 
     }
 
-    public void DriveMecanum(double strafe, double drive, double turn, boolean modify) {
+    public void DriveMecanum(double strafe, double drive, double turn, boolean Creep, boolean Turbo) {
 
         //Calculate needed power
         double modifier = 0.50;
-        if (modify) {
+
+        if (Creep) {
             modifier = 0.1;
-        } else {
-            modifier = 0.5;
+        } else if (Turbo){
+            modifier = 1;
         }
 
         if (currentDriveMode == driveModes.Flipped) {
@@ -197,9 +198,6 @@ public class Robot {
         BRDrive.setPower(BRPower * modifier);
         BLDrive.setPower(BLPower * modifier);
     }
-
-
-
 
     /* moving encoderDrive from Auton to Robot */
     /* removing all time checks and telemetry  */

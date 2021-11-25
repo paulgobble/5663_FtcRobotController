@@ -115,7 +115,7 @@ public class Teleop extends OpMode {
     @Override
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
-        robot.DriveMecanum(gamepad1.right_stick_x, -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger > 0);
+        robot.DriveMecanum(gamepad1.right_stick_x, -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger > 0, gamepad1.right_bumper);
 
         // BotArm D-pod control
         boolean armUp = gamepad2.dpad_up;
@@ -137,7 +137,7 @@ public class Teleop extends OpMode {
         // Spin D-pod control
         boolean spinLeft = gamepad2.dpad_left;
         boolean spinRight = gamepad2.dpad_right;
-        double duckSpeed = .60; // was .8
+        double duckSpeed = .75; // was .6
         if (spinLeft) {
             //spin duck left
             robot.SpinDucks(duckSpeed);
@@ -175,6 +175,7 @@ public class Teleop extends OpMode {
         telemetry.addData("     BLDrive", robot.BLDrive.getCurrentPosition());
         telemetry.addData("       Creep", gamepad1.right_trigger > 0);
         telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
+        telemetry.addData("Turbo", gamepad1.right_bumper);
 
     }
 
