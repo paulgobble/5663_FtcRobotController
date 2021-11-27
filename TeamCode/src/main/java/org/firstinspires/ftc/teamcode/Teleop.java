@@ -120,7 +120,19 @@ public class Teleop extends OpMode {
         // BotArm D-pod control
         boolean armUp = gamepad2.dpad_up;
         boolean armDown = gamepad2.dpad_down;
+
+        boolean armCreep = gamepad2.right_bumper;
+
         double armSpeed = 1;
+
+        if (armCreep) {
+            armSpeed = .3;
+            telemetry.addData("Arm Speed", "Creep");
+        } else {
+            telemetry.addData("Arm Speed", "Normal");
+        }
+
+
         if (armUp) {
             //raise the wing
             robot.Arm(armSpeed);
@@ -176,7 +188,8 @@ public class Teleop extends OpMode {
         telemetry.addData("       Creep", gamepad1.right_trigger > 0);
         telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
         telemetry.addData("Turbo", gamepad1.right_bumper);
-
+        telemetry.addData( "Color red", robot.LineStopper.red());
+        telemetry.addData( "Color blue", robot.LineStopper.blue());
     }
 
     /*
