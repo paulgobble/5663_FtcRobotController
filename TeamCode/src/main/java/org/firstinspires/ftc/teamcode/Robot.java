@@ -31,6 +31,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -69,6 +70,8 @@ public class Robot {
     public DcMotor Spin2 = null;
 
     public Servo ArmGrip = null;
+
+    public ColorSensor LineStopper = null;
 
     public OpenCvCamera WebCamC = null;
 
@@ -131,6 +134,8 @@ public class Robot {
 
         // Define and initialize ALL installed servos.
         ArmGrip = hwMap.get(Servo.class, "ArmGrip");
+
+        LineStopper = hwMap.get(ColorSensor.class,"lineStopper");
 
         // Define webcams
         // Step 1. Get live viewport
