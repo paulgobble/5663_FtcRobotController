@@ -131,6 +131,11 @@ public class Robot {
         BotArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Spin2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // set the zero power mode to brake for arm and spin motors
+        BotArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BotArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Spin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Spin2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Define and initialize ALL installed servos.
         ArmGrip = hwMap.get(Servo.class, "ArmGrip");
