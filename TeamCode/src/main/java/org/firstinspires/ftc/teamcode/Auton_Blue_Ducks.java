@@ -1,3 +1,5 @@
+// Version 2.0
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -63,55 +65,46 @@ public class Auton_Blue_Ducks extends LinearOpMode {
         // Stage 02
         raise_arm();
 
-        // Stage 02.5
+        // Stage 03
         turn2hub();
 
-        // Stage 02.7
+        // Stage 04
         releaseBlock();
 
-        // Stage 04
+        // Stage 05
         drive_away_from_hub();
 
-        // SCRIPT Stage 04.5
+        // SCRIPT Stage 06
         salute_the_crowd();
 
-        //Stage 05
+        //Stage 07
         strafe_twards_duck();
 
-        //Stage 06
+        //Stage 08
         drive_to_ducks();
 
-        //Stage 07
+        //Stage 09
         drive_closer_to_ducks();
 
-        //Stage 08
+        //Stage 10
         spin_duck();
 
-        //Stage 07 - again
-        //drive_closer_to_ducks();
-
-        //Stage 08 - again
-        //spin_duck();
-
-        //Stage 09
+        //Stage 11
         back_up_from_ducks_strafe_to_unit();
 
-        // Stage 03
+        // Stage 12
         lower_arm();
 
-        //Stage 10
+        //Stage 13
         ark_strafe();
 
-        //Stage 10.5
+        //Stage 14
         ark_turn();
 
-        // SCRIPT Stage 11
-        //drive_just_a_bit_more();
-
-        // SCRIPT Stage 12
+        // SCRIPT Stage 15
         driveToLine();
 
-        //SCRIPT Stage 13
+        //SCRIPT Stage 16
         final_drive_into_Storage_Unit();
 
     } // end runOpMode
@@ -151,6 +144,9 @@ public class Auton_Blue_Ducks extends LinearOpMode {
     private void stop_n_stare(){
         if (opModeIsActive()) {
 
+            telemetry.addData("Stage:", "00, stop_n_stare");
+            telemetry.update();
+
             sleep(1000); // give robot's pipeline time to startflowing
 
             decoderRingA();         // take the data provided by the pipeline and decode it to discover the targetLevel
@@ -165,7 +161,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
         // insure the opMode is still active
         if (opModeIsActive()){
 
-            telemetry.addData("Stage:", "01, drive_n_trun_2_hub");
+            telemetry.addData("Stage:", "01, drive_2_hub");
             telemetry.update();
 
             robot.FlipGrip(.2); //Close Gripper
@@ -184,43 +180,6 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
     } //end drive2hub
 
-    // SCRIPT Stage 01.5
-    private void turn2hub(){
-
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "01, drive_n_trun_2_hub");
-            telemetry.update();
-
-            // Drive Targets - move forward
-            double speed = .3;
-            double FL_Distance = -8; // all same sign indicates drive
-            double FR_distance = 8;
-            double BL_distance = -8;
-            double BR_distance = 8; // was 9
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            sleep(500);
-        }
-    } //end turn2hub
-
-    // SCRIPT Stage 01.7
-    private void releaseBlock(){
-
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "01.7, realeaseBlock");
-            telemetry.update();
-
-            robot.FlipGrip(.3); //Open gripper
-
-            sleep(500); //Sleep to leave time to open the Gripper
-        }
-    } //end releaseBlock
 
     // SCRIPT Stage 02
     private void raise_arm(){
@@ -287,6 +246,257 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
 
     // SCRIPT Stage 03
+    private void turn2hub(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "03, turn2hub");
+            telemetry.update();
+
+            // Drive Targets - move forward
+            double speed = .3;
+            double FL_Distance = -8; // all same sign indicates drive
+            double FR_distance = 8;
+            double BL_distance = -8;
+            double BR_distance = 8; // was 9
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            sleep(500);
+        }
+    } //end turn2hub
+
+
+    // SCRIPT Stage 04
+    private void releaseBlock(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "04, realeaseBlock");
+            telemetry.update();
+
+            robot.FlipGrip(.3); //Open gripper
+
+            sleep(500); //Sleep to leave time to open the Gripper
+        }
+    } //end releaseBlock
+
+
+    // SCRIPT Stage 05
+    private void drive_away_from_hub(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "05, drive_away_from_hub");
+            telemetry.update();
+
+            // Drive Targets - move forward
+            double speed = .3;
+            double FL_Distance = 13; // all same sign indicates drive
+            double FR_distance = 13;
+            double BL_distance = 13;
+            double BR_distance = 13; //
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            sleep(500);
+
+        }
+
+    } //end drive_away_from_hub
+
+
+    // SCRIPT Stage 06
+    private void salute_the_crowd(){
+
+        robot.FlipGrip(.2); // close the Gripper Flipper
+
+        int desiredArmPosition = 4000; // was 3000
+
+        telemetry.addData("Stage:", "06, salute_the_crowd");
+        telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
+        telemetry.addData("Arm Destinan", desiredArmPosition);
+        telemetry.update();
+
+        //sleep(2000); //debut - time to read
+
+        while (opModeIsActive()){
+
+            if(robot.BotArm.getCurrentPosition() > desiredArmPosition)
+            {
+                robot.BotArm.setPower(-0.95);
+                robot.BotArm2.setPower(-0.95);
+                telemetry.addData("Note", "In While loop, TRUE ");
+                telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
+                telemetry.addData("Arm Destinan", desiredArmPosition);
+                telemetry.update();
+                sleep(100); // time for motors to react?
+            }
+            else
+            {
+                robot.BotArm.setPower(0);
+                robot.BotArm2.setPower(0);
+                telemetry.addData("Note", "In While loop, FALSE");
+                telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
+                telemetry.addData("Arm Destinan", desiredArmPosition);
+                telemetry.update();
+                //sleep(2000);
+                break;  // try a break statement here
+            }
+
+        }
+
+        telemetry.addData("Note", "Done Arm motion.");
+        telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
+        telemetry.addData("Arm Destinan", desiredArmPosition);
+        telemetry.update();
+
+        robot.BotArm.setPower(0);
+
+        sleep(500); // just waiting for time to read the telemetry
+
+    } //end salute_the_crowd
+
+
+    // SCRIPT Stage 07
+    private void strafe_twards_duck(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "07, strfe_twards_duck");
+            telemetry.update();
+
+            // Drive Targets - move forward
+            double speed = .3;
+            double FL_Distance = -18;
+            double FR_distance = 18;
+            double BL_distance = 18; // was 15.5
+            double BR_distance = -18; //
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            sleep(500);
+
+        }
+
+    } //end strafe_twards_duck
+
+
+    // SCRIPT Stage 08
+    private void drive_to_ducks(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "08, drive to ducks");
+            telemetry.update();
+
+            // Drive Targets - move forward
+            double speed = .3;
+            double FL_Distance = 8; // all same sign indicates drive
+            double FR_distance = 8;
+            double BL_distance = 8;
+            double BR_distance = 8; //
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            //sleep(500);
+
+        }
+
+    } //end drive_to_ducks
+
+
+    // SCRIPT Stage 09
+    private void drive_closer_to_ducks(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "09, drive to ducks");
+            telemetry.update();
+
+            // Start spinning
+            robot.Spin.setPower(.4);
+            robot.Spin2.setPower(.4); // was .6
+
+            // Drive Targets - move forward
+            double speed = .05;
+            double FL_Distance = 25; // all same sign indicates drive
+            double FR_distance = 25;
+            double BL_distance = 25;
+            double BR_distance = 25; // was 20
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            //sleep(500);
+
+        }
+
+    } //end drive_closer_to_ducks
+
+
+    // SCRIPT Stage 10
+    private void spin_duck(){
+
+        int SpinTime = 1000;
+
+        //sleep(1000); //debut - time to read
+
+        while (opModeIsActive()){
+
+            telemetry.addData("Stage:", "10, spin_duck");
+            telemetry.update();
+
+            robot.Spin.setPower(.4);
+            robot.Spin2.setPower(.4); // was .6
+
+            sleep(SpinTime);
+            break;
+        }
+
+        robot.Spin.setPower(0);
+        robot.Spin2.setPower(0);
+
+    } //end spin_duck
+
+
+    // SCRIPT Stage 11
+    private void back_up_from_ducks_strafe_to_unit(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "11, back up from ducks");
+            telemetry.update();
+
+            // Drive Targets - move forward
+            double speed = .3; // was .5
+            double FL_Distance = -9; // all same sign indicates drive
+            double FR_distance = -9;
+            double BL_distance = -9;
+            double BR_distance = -9; //
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            sleep(500);
+
+        }
+
+    } //end back_up_from_ducks_strafe_to_unit
+
+
+    // SCRIPT Stage 12
     private void lower_arm(){
 
         robot.FlipGrip(.2); // close the Gripper Flipper
@@ -295,7 +505,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
         int desiredArmPosition = 1;  // can this be 0?
 
-        telemetry.addData("Stage:", "03, lower_arm");
+        telemetry.addData("Stage:", "12, lower_arm");
         telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
         telemetry.addData("Arm Destinan", desiredArmPosition);
         telemetry.update();
@@ -344,222 +554,18 @@ public class Auton_Blue_Ducks extends LinearOpMode {
     } //end lower_arm
 
 
-    // SCRIPT Stage 04
-    private void drive_away_from_hub(){
-
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "04, drive away");
-            telemetry.update();
-
-            // Drive Targets - move forward
-            double speed = .3;
-            double FL_Distance = 13; // all same sign indicates drive
-            double FR_distance = 13;
-            double BL_distance = 13;
-            double BR_distance = 13; //
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            sleep(500);
-
-        }
-
-    } //end
-
-
-    // SCRIPT Stage 04.5
-    private void salute_the_crowd(){
-
-        robot.FlipGrip(.2); // close the Gripper Flipper
-
-        int desiredArmPosition = 4000; // was 3000
-
-        telemetry.addData("Stage:", "04.5, salute_the_crowd");
-        telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
-        telemetry.addData("Arm Destinan", desiredArmPosition);
-        telemetry.update();
-
-        //sleep(2000); //debut - time to read
-
-        while (opModeIsActive()){
-
-            if(robot.BotArm.getCurrentPosition() > desiredArmPosition)
-            {
-                robot.BotArm.setPower(-0.95);
-                robot.BotArm2.setPower(-0.95);
-                telemetry.addData("Note", "In While loop, TRUE ");
-                telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
-                telemetry.addData("Arm Destinan", desiredArmPosition);
-                telemetry.update();
-                sleep(100); // time for motors to react?
-            }
-            else
-            {
-                robot.BotArm.setPower(0);
-                robot.BotArm2.setPower(0);
-                telemetry.addData("Note", "In While loop, FALSE");
-                telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
-                telemetry.addData("Arm Destinan", desiredArmPosition);
-                telemetry.update();
-                //sleep(2000);
-                break;  // try a break statement here
-            }
-
-        }
-
-        telemetry.addData("Note", "Done Arm motion.");
-        telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
-        telemetry.addData("Arm Destinan", desiredArmPosition);
-        telemetry.update();
-
-        robot.BotArm.setPower(0);
-
-        sleep(500); // just waiting for time to read the telemetry
-
-    } //end salute_the_crowd
-
-
-    // SCRIPT Stage 05
-    private void strafe_twards_duck(){
-
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "05, strfe_twards_duck");
-            telemetry.update();
-
-            // Drive Targets - move forward
-            double speed = .3;
-            double FL_Distance = -18; // all same sign indicates drive
-            double FR_distance = 18;
-            double BL_distance = 18; // was 15.5
-            double BR_distance = -18; // flipped
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            sleep(500);
-
-        }
-
-    } //end
-
-    // SCRIPT Stage 06
-    private void drive_to_ducks(){
-
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "06, drive to ducks");
-            telemetry.update();
-
-            // Drive Targets - move forward
-            double speed = .3;
-            double FL_Distance = 8; // all same sign indicates drive
-            double FR_distance = 8;
-            double BL_distance = 8;
-            double BR_distance = 8; //
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            //sleep(500);
-
-        }
-
-    } //end
-
-    // SCRIPT Stage 07
-    private void drive_closer_to_ducks(){
-
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "07, drive to ducks");
-            telemetry.update();
-
-            // Start spinning
-            robot.Spin.setPower(.4);
-            robot.Spin2.setPower(.4); // was .6
-
-            // Drive Targets - move forward
-            double speed = .05;
-            double FL_Distance = 25; // all same sign indicates drive
-            double FR_distance = 25;
-            double BL_distance = 25;
-            double BR_distance = 25; // was 20
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            //sleep(500);
-
-        }
-
-    } //end
-
-
-    // SCRIPT Stage 08
-    private void spin_duck(){
-
-        int SpinTime = 1000;
-
-        //sleep(1000); //debut - time to read
-
-        while (opModeIsActive()){
-
-            robot.Spin.setPower(.4);
-            robot.Spin2.setPower(.4); // was .6
-
-            sleep(SpinTime);
-            break;
-        }
-
-        robot.Spin.setPower(0);
-        robot.Spin2.setPower(0);
-
-    } //end spin_duck
-
-    // SCRIPT Stage 09
-    private void back_up_from_ducks_strafe_to_unit(){
-
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "09, back up from ducks and strafe to unit");
-            telemetry.update();
-
-            // Drive Targets - move forward
-            double speed = .3; // was .5
-            double FL_Distance = -9; // all same sign indicates drive
-            double FR_distance = -9;
-            double BL_distance = -9;
-            double BR_distance = -9; //
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            sleep(500);
-
-        }
-
-    } //end
-
-    // SCRIPT Stage 10
+    // SCRIPT Stage 13
     private void ark_strafe(){
 
         // insure the opMode is still active
         if (opModeIsActive()){
 
-            telemetry.addData("Stage:", "10, ark strafe");
+            telemetry.addData("Stage:", "13, ark strafe");
             telemetry.update();
 
             // Drive Targets - move forward
             double speed = .3;
-            double FL_Distance = -16; // all same sign indicates drive
+            double FL_Distance = -16;
             double FR_distance = 16; // was 14
             double BL_distance = 16;
             double BR_distance = -16; // was 18 and, more recent, 20
@@ -571,15 +577,16 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
         }
 
-    } //end
+    } //end ark_strafe
 
-    // SCRIPT Stage 10.5
+
+    // SCRIPT Stage 14
     private void ark_turn(){
 
         // insure the opMode is still active
         if (opModeIsActive()){
 
-            telemetry.addData("Stage:", "10, ark strafe");
+            telemetry.addData("Stage:", "14, ark_turn");
             telemetry.update();
 
             // Drive Targets - move forward
@@ -596,36 +603,18 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
         }
 
-    } //end
+    } //end ark_turn
 
-    // SCRIPT Stage 11
-    private void drive_just_a_bit_more(){
 
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "11, drive_just_a_bit_more");
-            telemetry.update();
-
-            // Drive Targets - move forward
-            double speed = .2; // was .3
-            double FL_Distance = -2; // all same sign indicates drive
-            double FR_distance = -2;
-            double BL_distance = -2;
-            double BR_distance = -2; //was -3
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-        }
-
-    } //end
-
-    // Script Stage 12
+    // Script Stage 15
     private void driveToLine(){
 
         double stopTime = runtime.seconds() + 1.5;
 
         while(opModeIsActive() && runtime.seconds() < stopTime){
+
+            telemetry.addData("Stage:", "15, driveToLine");
+            telemetry.update();
 
             while(robot.LineStopper.blue() < 160){
 
@@ -655,15 +644,16 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
         }
 
-    }
+    } // end driveToLine
 
-    // SCRIPT Stage 13
+
+    // SCRIPT Stage 16
     private void final_drive_into_Storage_Unit(){
 
         // insure the opMode is still active
         if (opModeIsActive()){
 
-            telemetry.addData("Stage:", "11, drive_just_a_bit_more");
+            telemetry.addData("Stage:", "16, final_drive_into_Storage_Unit");
             telemetry.update();
 
             // Drive Targets - move forward
@@ -677,6 +667,29 @@ public class Auton_Blue_Ducks extends LinearOpMode {
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
         }
 
+    } //end final_drive_into_Storage_Unit
+
+
+    // SCRIPT Stage xx - unused
+    private void drive_just_a_bit_more(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "11, drive_just_a_bit_more");
+            telemetry.update();
+
+            // Drive Targets - move forward
+            double speed = .2; // was .3
+            double FL_Distance = -2; // all same sign indicates drive
+            double FR_distance = -2;
+            double BL_distance = -2;
+            double BR_distance = -2; //was -3
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+        }
+
     } //end
 
-}  // end class driveToLine
+}  // end class
