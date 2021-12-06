@@ -108,6 +108,8 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
             telemetry.addData("Target Level", targetLevel);
         }
         telemetry.update();
+
+        //robot.WebCamC.stopStreaming();
     }
 
 
@@ -142,7 +144,7 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
             telemetry.addData("Stage:", "01, drive_2_hub");
             telemetry.update();
 
-            robot.FlipGrip(.2);
+            robot.FlipGrip(.1);
             sleep(500); // wait for good grip
 
             // Drive Targets - move forward
@@ -198,11 +200,11 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
 
 
         if (targetLevel == hubLevels.Three) {
-            increaseArmPosition = 5000; // was 5000
+            increaseArmPosition = robot.level_3_position;
         } else if (targetLevel == hubLevels.Two) {
-            increaseArmPosition = 5800;
+            increaseArmPosition = robot.level_2_position;
         } else {
-            increaseArmPosition = 6300;
+            increaseArmPosition = robot.level_1_position;
         }
 
         int desiredArmPosition = robot.BotArm.getCurrentPosition() + increaseArmPosition;
@@ -277,7 +279,7 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
     // SCRIPT Stage 03
     private void lower_arm(){
 
-        robot.FlipGrip(.2);
+        robot.FlipGrip(.05);
 
         //int increaseArmPosition = 5500; // was 5000
 
@@ -342,7 +344,7 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
             telemetry.addData("Stage:", "01, drive_n_trun_2_hub");
             telemetry.update();
 
-            robot.FlipGrip(.2);
+            robot.FlipGrip(.05);
             sleep(500); // wait for good grip
 
             // Drive Targets - move forward

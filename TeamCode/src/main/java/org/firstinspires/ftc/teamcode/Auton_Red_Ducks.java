@@ -129,6 +129,8 @@ public class Auton_Red_Ducks extends LinearOpMode {
             telemetry.addData("Target Level", targetLevel);
         }
         telemetry.update();
+
+        //robot.WebCamC.stopStreaming();
     }
 
 
@@ -164,7 +166,7 @@ public class Auton_Red_Ducks extends LinearOpMode {
             telemetry.addData("Stage:", "01, drive_2_hub");
             telemetry.update();
 
-            robot.FlipGrip(.2); //Close Gripper
+            robot.FlipGrip(.05); //Close Gripper  - was -2x
             sleep(500); // wait for good grip
 
             // Drive Targets - move forward
@@ -187,11 +189,11 @@ public class Auton_Red_Ducks extends LinearOpMode {
         robot.FlipGrip(.2); //Close Gripper
 
         if (targetLevel == hubLevels.Three) {
-            increaseArmPosition = 5000; // was 5250
+            increaseArmPosition = robot.level_3_position;
         } else if (targetLevel == hubLevels.Two) {
-            increaseArmPosition = 5800;
+            increaseArmPosition = robot.level_2_position;
         } else {
-            increaseArmPosition = 6300;
+            increaseArmPosition = robot.level_1_position;
         }
 
         int desiredArmPosition = robot.BotArm.getCurrentPosition() + increaseArmPosition;
@@ -256,10 +258,10 @@ public class Auton_Red_Ducks extends LinearOpMode {
 
             // Drive Targets - move forward
             double speed = .3;
-            double FL_Distance = 8; // all same sign indicates drive
-            double FR_distance = -8;
-            double BL_distance = 8;
-            double BR_distance = -8; // was 8
+            double FL_Distance = 7; // all same sign indicates drive
+            double FR_distance = -7;
+            double BL_distance = 7;
+            double BR_distance = -7; // was 8
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
@@ -314,7 +316,7 @@ public class Auton_Red_Ducks extends LinearOpMode {
     // SCRIPT Stage 06
     private void salute_the_crowd(){
 
-        robot.FlipGrip(.2); // close the Gripper Flipper
+        robot.FlipGrip(.05); // close the Gripper Flipper
 
         int desiredArmPosition = 4000; // was 3000
 

@@ -53,6 +53,11 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class Robot {
     /* Public Variables */
 
+    // Arm Encoder Positions for Shipping Hub Levels
+    public final int level_1_position = 7500; // lowest level - was 6300
+    public final int level_2_position = 6950; // middle level - was 5800
+    public final int level_3_position = 6500; // highest level - was 5000
+
     //  Pipeline Results *
     public Boolean leftCameraFoundTSE = false;     // Was the TSE found on the left side of the webcam frame
     public Boolean rightCameraFoundTSE = false;    // Was the TSE found on the right side of the webcam frame
@@ -327,10 +332,11 @@ public class Robot {
         final int topMargin = 100;       // Top margin to be cropped off
         final int botMargin = 100;      // Bottom margin to be cropped off
 
-        Mat cSpaceShiftedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
-        Mat singleChannelImage = new Mat();   // Matrix to contain just the Cb chanel
-        Mat thresholdImage = new Mat();     // Matrix to contain adjusted image
-        Mat scanZoneSample = new Mat();
+        Mat workingFrame = new Mat();       // one Matrix to reuse
+        //Mat cSpaceShiftedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
+        //Mat singleChannelImage = new Mat();   // Matrix to contain just the Cb chanel
+        //Mat thresholdImage = new Mat();     // Matrix to contain adjusted image
+        //Mat scanZoneSample = new Mat();
 
         //double scanZoneValue = 0;
 
@@ -338,14 +344,14 @@ public class Robot {
         public Mat processFrame(Mat input)
         {
             /**********************
-             * Process the ferame *
+             * Process the frame  *
              **********************/
             // convert the input RGB image to LAB color space
-            Imgproc.cvtColor(input, cSpaceShiftedImage, Imgproc.COLOR_RGB2Lab); // was Imgproc.COLOR_RGB2YCrCb
+            Imgproc.cvtColor(input, workingFrame, Imgproc.COLOR_RGB2Lab); // was Imgproc.COLOR_RGB2YCrCb
             // extract just the A channel to isolate the difference in green
-            Core.extractChannel(cSpaceShiftedImage, singleChannelImage, 1);
+            Core.extractChannel(workingFrame, workingFrame, 1);
             // use the threshold Imgproc threshold method to enhance the visual separation between rings and mat floor
-            Imgproc.threshold(singleChannelImage, thresholdImage,thresholdValue, MAX_BINARY_VALUE, Imgproc.THRESH_TOZERO);
+            Imgproc.threshold(workingFrame, workingFrame,thresholdValue, MAX_BINARY_VALUE, Imgproc.THRESH_TOZERO);
 
 
             /*****************************
@@ -371,10 +377,13 @@ public class Robot {
             int scanLoopCounter = 0;
 
             if (!visionScanComplete) {
+
+                Mat scanZoneSample = new Mat();
+
                 for (int thisX = leftScanPadding; thisX < frameWidth - scanWidth - rightScanPadding; thisX = thisX + scanStep) {
 
                     // copy just target zone to a new matrix
-                    scanZoneSample = thresholdImage.submat(new Rect(thisX, topMargin, scanWidth, scanHeight));
+                    scanZoneSample = workingFrame.submat(new Rect(thisX, topMargin, scanWidth, scanHeight));
                     // convert the matrix single color channel averaged numeric value
                     thisScanValue = Core.mean(scanZoneSample).val[0];
                     // decide if this value indicates presence of the TSE
@@ -391,6 +400,8 @@ public class Robot {
                     scanLoopCounter += 1;
                 }
                 visionScanComplete = true;
+
+                scanZoneSample.release();
             }
 
             // Compute the scan zone rectangle
@@ -399,12 +410,12 @@ public class Robot {
             Rect scanZoneRect = new Rect(upperLeft, lowerRight);
 
             Imgproc.rectangle(
-                    thresholdImage,
+                    workingFrame,
                     upperLeft,
                     lowerRight,
                     new Scalar(255, 0, 0), 1); //
 
-            return thresholdImage;
+            return workingFrame;
         } // End processFrame
 
     } // End class RedPipeline_internal

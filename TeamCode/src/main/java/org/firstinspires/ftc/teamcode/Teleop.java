@@ -169,11 +169,11 @@ public class Teleop extends OpMode {
         telemetry.addData("Open Grip", openGrip);
         telemetry.addData("CloseGrip", closeGrip);
         if (openGrip) {
-            robot.FlipGrip(.27); // was .1 then .01
+            robot.FlipGrip(.15); // was .17
         } else if (closeGrip) {
-            robot.FlipGrip(.2);
+            robot.FlipGrip(.05); // was .2
         } else if (openWide) {
-            robot.FlipGrip(.4);
+            robot.FlipGrip(.3); // was .4
         }
 
         handleButtons();  // test for pressed toggle buttons
