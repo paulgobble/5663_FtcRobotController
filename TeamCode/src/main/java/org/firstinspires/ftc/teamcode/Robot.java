@@ -54,9 +54,9 @@ public class Robot {
     /* Public Variables */
 
     // Arm Encoder Positions for Shipping Hub Levels
-    public final int level_1_position = 7500; // lowest level - was 6300
+    public final int level_1_position = 7400; // lowest level - was 7500, then 7250, then 7350
     public final int level_2_position = 6950; // middle level - was 5800
-    public final int level_3_position = 6500; // highest level - was 5000
+    public final int level_3_position = 6300; // highest level - was 5000 then 6300
 
     //  Pipeline Results *
     public Boolean leftCameraFoundTSE = false;     // Was the TSE found on the left side of the webcam frame

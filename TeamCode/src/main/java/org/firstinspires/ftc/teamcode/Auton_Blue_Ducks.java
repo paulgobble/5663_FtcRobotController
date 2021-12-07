@@ -186,7 +186,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
     // SCRIPT Stage 02
     private void raise_arm(){
 
-        robot.FlipGrip(.2); //Close Gripper
+        robot.FlipGrip(.05); //Close Gripper
 
         if (targetLevel == hubLevels.Three) {
             increaseArmPosition = robot.level_3_position;
@@ -256,12 +256,14 @@ public class Auton_Blue_Ducks extends LinearOpMode {
             telemetry.addData("Stage:", "03, turn2hub");
             telemetry.update();
 
+            robot.FlipGrip(.05); //Close Gripper
+
             // Drive Targets - move forward
             double speed = .3;
-            double FL_Distance = -7; // all same sign indicates drive
-            double FR_distance = 7;
-            double BL_distance = -7;
-            double BR_distance = 7; // was 8
+            double FL_Distance = -7.8; // all same sign indicates drive
+            double FR_distance = 7.8;
+            double BL_distance = -7.8;
+            double BR_distance = 7.8; // was 8 then 7
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
@@ -280,7 +282,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
             telemetry.addData("Stage:", "04, realeaseBlock");
             telemetry.update();
 
-            robot.FlipGrip(.3); //Open gripper
+            robot.FlipGrip(.15); //Open gripper
 
             sleep(500); //Sleep to leave time to open the Gripper
         }
@@ -432,10 +434,10 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
             // Drive Targets - move forward
             double speed = .05;
-            double FL_Distance = 25; // all same sign indicates drive
-            double FR_distance = 25;
-            double BL_distance = 25;
-            double BR_distance = 25; // was 20
+            double FL_Distance = 21; // all same sign indicates drive
+            double FR_distance = 21;
+            double BL_distance = 21;
+            double BR_distance = 21; // was 25
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
@@ -450,7 +452,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
     // SCRIPT Stage 10
     private void spin_duck(){
 
-        int SpinTime = 1000;
+        int SpinTime = 500;
 
         //sleep(1000); //debut - time to read
 
@@ -501,7 +503,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
     // SCRIPT Stage 12
     private void lower_arm(){
 
-        robot.FlipGrip(.2); // close the Gripper Flipper
+        robot.FlipGrip(.05); // close the Gripper Flipper
 
         //int decreaseArmPosition = -5500; //
 
