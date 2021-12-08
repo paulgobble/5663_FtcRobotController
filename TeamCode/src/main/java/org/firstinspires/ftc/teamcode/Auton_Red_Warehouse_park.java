@@ -1,5 +1,3 @@
-// Version 0.0
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -65,27 +63,25 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
         // Stage 02
         raise_arm();
 
-        // Stage 01.5
+        // Stage 03
         turn_2_hub();
 
-        // Stage 02.7
+        // Stage 04
         dropCargo();
 
-        //Stage 04
-        drive_n_turn_back();
-
-        //Stage 03
-        lower_arm();
-
         //Stage 05
-        strafe_to_warehouse_position();
+        turn_back();
 
         //Stage 06
+        lower_arm();
+
+        //Stage 07
+        strafe_to_warehouse_position();
+
+        //Stage 08
         //outta_the_way();
 
     } // end runOpMode
-
-
 
 
     /*********************************
@@ -113,7 +109,6 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
     }
 
 
-
     /**************************
      *                        *
      *  Autonomous  Segments  *
@@ -122,9 +117,13 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
      *                        *
      **************************/
 
+
     // SCRIPT Stage 00
     private void stop_n_stare(){
         if (opModeIsActive()) {
+
+            telemetry.addData("Stage:", "00, stop_n_stare");
+            telemetry.update();
 
             sleep(1000); // give robot's pipeline time to startflowing
 
@@ -132,7 +131,6 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
 
         }
     } // End stop_n_stare
-
 
 
     // SCRIPT Stage 01
@@ -144,15 +142,15 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
             telemetry.addData("Stage:", "01, drive_2_hub");
             telemetry.update();
 
-            robot.FlipGrip(.1);
+            robot.FlipGrip(robot.grip_tight);
             sleep(500); // wait for good grip
 
             // Drive Targets - move forward
             double speed = .3;
-            double FL_Distance = -10; // all same sign indicates drive
-            double FR_distance = -10;
-            double BL_distance = -10;
-            double BR_distance = -10; // was -10
+            double FL_Distance = -9; // all same sign indicates drive
+            double FR_distance = -9;
+            double BL_distance = -9;
+            double BR_distance = -9; // was -10
 
             // Call encoderDrive
             robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
@@ -164,40 +162,10 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
     } //end drive_n_turn
 
 
-
-
-    // SCRIPT Stage 01.5
-    private void turn_2_hub(){
-
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "01.5, trun_2_hub");
-            telemetry.update();
-
-            // Drive Targets - turn towards hub
-            double speed = .3;
-            double FL_Distance = -9; // alternating signs indicate a turn
-            double FR_distance = 9;
-            double BL_distance = -9;
-            double BR_distance = 9; //was 10
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            sleep(1000);
-
-        }
-
-    } //end turn_2_hub
-
-
-
-
-
     // SCRIPT Stage 02
     private void raise_arm(){
 
+        robot.FlipGrip(robot.grip_tight);
 
         if (targetLevel == hubLevels.Three) {
             increaseArmPosition = robot.level_3_position;
@@ -262,30 +230,82 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
     } //end raise_arm
 
 
+    // SCRIPT Stage 03
+    private void turn_2_hub(){
 
-    // SCRIPT Stage 2.7
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "03, trun_2_hub");
+            telemetry.update();
+
+            robot.FlipGrip(robot.grip_tight);
+
+            // Drive Targets - turn towards hub
+            double speed = .3;
+            double FL_Distance = -9; // alternating signs indicate a turn
+            double FR_distance = 9;
+            double BL_distance = -9;
+            double BR_distance = 9; //was 10
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            sleep(1000);
+
+        }
+
+    } //end turn_2_hub
+
+
+    // SCRIPT Stage 04
     private void dropCargo(){
 
-        robot.FlipGrip(.3);
+        robot.FlipGrip(robot.grip_open);
         sleep(1000);
 
-    }
+    } // end dropCargo
 
 
+    // SCRIPT Stage 05
+    private void turn_back(){
+
+        // insure the opMode is still active
+        if (opModeIsActive()){
+
+            telemetry.addData("Stage:", "05, turn_back");
+            telemetry.update();
+
+            robot.FlipGrip(robot.grip_wide); // open grippers wider for more clearance
+            sleep(500); // wait for good grip
+
+            // Drive Targets - move forward
+            double speed = .3;
+            double FL_Distance = -10; // all same sign indicates drive
+            double FR_distance = 10;
+            double BL_distance = -10;
+            double BR_distance = 10; // as -11
+
+            // Call encoderDrive
+            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
+
+            sleep(500);
+
+        }
+
+    } //end turn_back
 
 
-
-
-    // SCRIPT Stage 03
+    // SCRIPT Stage 06
     private void lower_arm(){
 
-        robot.FlipGrip(.05);
+        robot.FlipGrip(robot.grip_rest);
 
         //int increaseArmPosition = 5500; // was 5000
 
         int desiredArmPosition = 0; // robot.BotArm.getCurrentPosition() 1 increaseArmPosition;
 
-        telemetry.addData("Stage:", "02, raise_arm");
+        telemetry.addData("Stage:", "06, raise_arm");
         telemetry.addData("Arm Position", robot.BotArm.getCurrentPosition());
         telemetry.addData("Arm Destinan", desiredArmPosition);
         telemetry.update();
@@ -335,41 +355,14 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
 
     } //end raise_arm
 
-    // SCRIPT Stage 04
-    private void drive_n_turn_back(){
 
-        // insure the opMode is still active
-        if (opModeIsActive()){
-
-            telemetry.addData("Stage:", "01, drive_n_trun_2_hub");
-            telemetry.update();
-
-            robot.FlipGrip(.05);
-            sleep(500); // wait for good grip
-
-            // Drive Targets - move forward
-            double speed = .3;
-            double FL_Distance = -10; // all same sign indicates drive
-            double FR_distance = 10;
-            double BL_distance = -10;
-            double BR_distance = 10; // as -11
-
-            // Call encoderDrive
-            robot.encoderDrive(speed, FL_Distance, FR_distance, BL_distance, BR_distance);
-
-            sleep(500);
-
-        }
-
-    } //end drive_n_turn
-
-    // SCRIPT Stage 05
+    // SCRIPT Stage 07
     private void strafe_to_warehouse_position(){
 
         // insure the opMode is still active
         if (opModeIsActive()){
 
-            telemetry.addData("Stage:", "01, drive_n_trun_2_hub");
+            telemetry.addData("Stage:", "07, strafe_to_warehouse_position");
             telemetry.update();
 
             robot.FlipGrip(.2);
@@ -399,18 +392,19 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
 
         }
 
-    } //end drive_n_turn
+    } //end strafe_to_warehouse_position
 
-    // SCRIPT Stage 06
+
+    // SCRIPT Stage 08
     private void outta_the_way(){
 
         // insure the opMode is still active
         if (opModeIsActive()){
 
-            telemetry.addData("Stage:", "01, drive_n_trun_2_hub");
+            telemetry.addData("Stage:", "08, outta_the_way");
             telemetry.update();
 
-            robot.FlipGrip(.2);
+            robot.FlipGrip(robot.grip_tight);
             sleep(500); // wait for good grip
 
             // Drive Targets - move forward
@@ -426,4 +420,4 @@ public class Auton_Red_Warehouse_park extends LinearOpMode {
 
     } //end outta_the_way
 
-}  // end class Auton_Red_Ducks
+}  // end class Auton_Red_Ducks_Park

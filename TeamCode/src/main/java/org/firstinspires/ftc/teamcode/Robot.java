@@ -58,6 +58,13 @@ public class Robot {
     public final int level_2_position = 6950; // middle level - was 5800
     public final int level_3_position = 6300; // highest level - was 5000 then 6300
 
+    // GripperFlipper grab positions
+    public final double grip_tight = .05;
+    public final double grip_rest = .1;
+    public final double grip_open = .15;
+    public final double grip_wide = .3;
+
+
     //  Pipeline Results *
     public Boolean leftCameraFoundTSE = false;     // Was the TSE found on the left side of the webcam frame
     public Boolean rightCameraFoundTSE = false;    // Was the TSE found on the right side of the webcam frame

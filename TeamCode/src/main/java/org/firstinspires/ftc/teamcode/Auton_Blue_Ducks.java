@@ -90,7 +90,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
         spin_duck();
 
         //Stage 11
-        back_up_from_ducks_strafe_to_unit();
+        back_up_from_ducks();
 
         // Stage 12
         lower_arm();
@@ -166,7 +166,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
             telemetry.addData("Stage:", "01, drive_2_hub");
             telemetry.update();
 
-            robot.FlipGrip(.05); //Close Gripper
+            robot.FlipGrip(robot.grip_tight); //Close Gripper
             sleep(500); // wait for good grip
 
             // Drive Targets - move forward
@@ -186,7 +186,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
     // SCRIPT Stage 02
     private void raise_arm(){
 
-        robot.FlipGrip(.05); //Close Gripper
+        robot.FlipGrip(robot.grip_tight); //Close Gripper
 
         if (targetLevel == hubLevels.Three) {
             increaseArmPosition = robot.level_3_position;
@@ -256,7 +256,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
             telemetry.addData("Stage:", "03, turn2hub");
             telemetry.update();
 
-            robot.FlipGrip(.05); //Close Gripper
+            robot.FlipGrip(robot.grip_tight); //Close Gripper
 
             // Drive Targets - move forward
             double speed = .3;
@@ -282,7 +282,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
             telemetry.addData("Stage:", "04, realeaseBlock");
             telemetry.update();
 
-            robot.FlipGrip(.15); //Open gripper
+            robot.FlipGrip(robot.grip_open); //Open gripper
 
             sleep(500); //Sleep to leave time to open the Gripper
         }
@@ -318,7 +318,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
     // SCRIPT Stage 06
     private void salute_the_crowd(){
 
-        robot.FlipGrip(.05); // close the Gripper Flipper
+        robot.FlipGrip(robot.grip_rest); // close the Gripper Flipper
 
         int desiredArmPosition = 4000; // was 3000
 
@@ -475,7 +475,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
 
 
     // SCRIPT Stage 11
-    private void back_up_from_ducks_strafe_to_unit(){
+    private void back_up_from_ducks(){
 
         // insure the opMode is still active
         if (opModeIsActive()){
@@ -503,7 +503,7 @@ public class Auton_Blue_Ducks extends LinearOpMode {
     // SCRIPT Stage 12
     private void lower_arm(){
 
-        robot.FlipGrip(.05); // close the Gripper Flipper
+        robot.FlipGrip(robot.grip_tight); // close the Gripper Flipper
 
         //int decreaseArmPosition = -5500; //
 
