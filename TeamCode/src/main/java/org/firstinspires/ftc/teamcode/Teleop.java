@@ -53,6 +53,10 @@ public class Teleop extends OpMode {
 
     private Deadline buttonPressLimit;
 
+    private Deadline duckSpinSlowLimit;
+    private Deadline duckSpinMediumLimit;
+
+
     private ElapsedTime runtime = new ElapsedTime();
     double FRpower;
     double FLpower;
@@ -69,6 +73,9 @@ public class Teleop extends OpMode {
         robot.init(hardwareMap);
 
         buttonPressLimit = new Deadline(ButtonLockout, TimeUnit.MILLISECONDS);
+
+        duckSpinSlowLimit = new Deadline(500, TimeUnit.MILLISECONDS);
+        duckSpinMediumLimit = new Deadline(1250, TimeUnit.MILLISECONDS);
 
         robot.FRDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.FLDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -150,12 +157,37 @@ public class Teleop extends OpMode {
         boolean spinLeft = gamepad2.dpad_left;
         boolean spinRight = gamepad2.dpad_right;
         double duckSpeed = .75; // was .6
+
+        double duck_spin_slow_speed = .25;
+        //int duck_spin_slow_time = 500;
+        double duck_spin_medium_speed = .75;
+        //int duck_spin_medium_time = 1250;
+        double duck_spin_fast_speed = 1;
+        //int duck_spin_fast_time = 2000;
+
+        //duckSpinSlowLimit.reset();
+        //duckSpinMediumLimit.reset();
         if (spinLeft) {
             //spin duck left
             robot.SpinDucks(duckSpeed);
+
+            /*if(!duckSpinSlowLimit.hasExpired()) {
+                robot.SpinDucks(duck_spin_slow_speed);
+            } else if (!duckSpinMediumLimit.hasExpired()){
+                robot.SpinDucks(duck_spin_medium_speed);
+            } else {
+                robot.SpinDucks(duck_spin_fast_speed);
+            } */
         } else if (spinRight) {
-            // spin duck right
+            // Spion duck right
             robot.SpinDucks(duckSpeed * -1);
+            /*if(!duckSpinSlowLimit.hasExpired()) {
+                robot.SpinDucks(duck_spin_slow_speed * -1);
+            } else if (!duckSpinMediumLimit.hasExpired()){
+                robot.SpinDucks(duck_spin_medium_speed * -1);
+            } else {
+                robot.SpinDucks(duck_spin_fast_speed * -1);
+            }*/
         } else {
             // do nothing
             robot.SpinDucks(0);
@@ -203,6 +235,8 @@ public class Teleop extends OpMode {
     /*******************************************
      * Method to handle gamepad toggle buttons *
      * presses and debounce                    *
+     *                                         *
+     * Im not really sure if this does anything anymore  *
      *******************************************/
     private void handleButtons () {
 
@@ -215,7 +249,7 @@ public class Teleop extends OpMode {
 
         // Set Robot Options
         if (gamepad1.left_trigger > 0) {
-            robot.setForwardDriveMode();
+            //robot.setForwardDriveMode();  - pulling plug on the Flip button
             buttonPressLimit.reset();
         }
 
