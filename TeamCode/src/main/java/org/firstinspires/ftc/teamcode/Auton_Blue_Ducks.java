@@ -149,9 +149,11 @@ public class Auton_Blue_Ducks extends LinearOpMode {
             telemetry.addData("Stage:", "00, stop_n_stare");
             telemetry.update();
 
-            sleep(1000); // give robot's pipeline time to startflowing
+            sleep(100); // give robot's pipeline time to startflowing - was 1000
 
             decoderRingA();         // take the data provided by the pipeline and decode it to discover the targetLevel
+
+            //sleep(30000); // debugging
 
         }
     } // End stop_n_stare

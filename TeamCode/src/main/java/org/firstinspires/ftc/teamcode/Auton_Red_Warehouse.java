@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Auton_Red_Warehouse", group="Autonomous")
+@Autonomous(name="Auton_Red_Warehouse_Slide", group="Autonomous")
 //@Disabled
 public class Auton_Red_Warehouse extends LinearOpMode {
 
@@ -125,7 +125,7 @@ public class Auton_Red_Warehouse extends LinearOpMode {
             telemetry.addData("Stage:", "00, stop_n_stare");
             telemetry.update();
 
-            sleep(1000); // give robot's pipeline time to startflowing
+            sleep(100); // give robot's pipeline time to startflowing - was 1000
 
             decoderRingA();         // take the data provided by the pipeline and decode it to discover the targetLevel
 

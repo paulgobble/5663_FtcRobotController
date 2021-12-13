@@ -125,7 +125,7 @@ public class Auton_Blue_Warehouse_Park extends LinearOpMode {
             telemetry.addData("Stage:", "00, stop_n_stare");
             telemetry.update();
 
-            sleep(1000); // give robot's pipeline time to startflowing
+            sleep(100); // give robot's pipeline time to startflowing - was 1000
 
             decoderRingB();         // take the data provided by the pipeline and decode it to discover the targetLevel
 

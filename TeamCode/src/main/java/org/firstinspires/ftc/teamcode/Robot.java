@@ -406,7 +406,7 @@ public class Robot {
                     // increment the counter
                     scanLoopCounter += 1;
                 }
-                visionScanComplete = true;
+                //visionScanComplete = true;  - removing this limit mechinism to see if it helps pipeline starting bug
 
                 scanZoneSample.release();
             }
