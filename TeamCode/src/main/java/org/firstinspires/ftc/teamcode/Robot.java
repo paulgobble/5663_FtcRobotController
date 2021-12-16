@@ -54,8 +54,8 @@ public class Robot {
     /* Public Variables */
 
     // Arm Encoder Positions for Shipping Hub Levels
-    public final int level_1_position = 7400; // lowest level - was 7500, then 7250, then 7350
-    public final int level_2_position = 6950; // middle level - was 5800
+    public final int level_1_position = 7500; // lowest level - was 7500, then 7250, then 7350, then 7400
+    public final int level_2_position = 7000; // middle level - was 5800, then 6950
     public final int level_3_position = 6300; // highest level - was 5000 then 6300
 
     // GripperFlipper grab positions
@@ -383,33 +383,30 @@ public class Robot {
 
             int scanLoopCounter = 0;
 
-            if (!visionScanComplete) {
+            Mat scanZoneSample = new Mat();
 
-                Mat scanZoneSample = new Mat();
+            for (int thisX = leftScanPadding; thisX < frameWidth - scanWidth - rightScanPadding; thisX = thisX + scanStep) {
 
-                for (int thisX = leftScanPadding; thisX < frameWidth - scanWidth - rightScanPadding; thisX = thisX + scanStep) {
-
-                    // copy just target zone to a new matrix
-                    scanZoneSample = workingFrame.submat(new Rect(thisX, topMargin, scanWidth, scanHeight));
-                    // convert the matrix single color channel averaged numeric value
-                    thisScanValue = Core.mean(scanZoneSample).val[0];
-                    // decide if this value indicates presence of the TSE
-                    foundTSE = (thisScanValue <= testThreshold);
-                    // If a TSE is found, determine where it was seen and pass it back to robot
-                    if (foundTSE){
-                        if(scanLoopCounter <= leftScanZoneLimit) {
-                            leftCameraFoundTSE = true;
-                        } else if (scanLoopCounter <= rightScanZoneLimit){
-                            rightCameraFoundTSE = true;
-                        }
+                // copy just target zone to a new matrix
+                scanZoneSample = workingFrame.submat(new Rect(thisX, topMargin, scanWidth, scanHeight));
+                // convert the matrix single color channel averaged numeric value
+                thisScanValue = Core.mean(scanZoneSample).val[0];
+                // decide if this value indicates presence of the TSE
+                foundTSE = (thisScanValue <= testThreshold);
+                // If a TSE is found, determine where it was seen and pass it back to robot
+                if (foundTSE){
+                    if(scanLoopCounter <= leftScanZoneLimit) {
+                        leftCameraFoundTSE = true;
+                    } else if (scanLoopCounter <= rightScanZoneLimit){
+                        rightCameraFoundTSE = true;
                     }
-                    // increment the counter
-                    scanLoopCounter += 1;
                 }
-                //visionScanComplete = true;  - removing this limit mechinism to see if it helps pipeline starting bug
+                // increment the counter
+                scanLoopCounter += 1;
+            } // end for
 
-                scanZoneSample.release();
-            }
+            scanZoneSample.release();
+
 
             // Compute the scan zone rectangle
             Point upperLeft = new Point(leftMargin, topMargin);

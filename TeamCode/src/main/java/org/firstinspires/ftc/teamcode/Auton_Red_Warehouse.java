@@ -103,7 +103,9 @@ public class Auton_Red_Warehouse extends LinearOpMode {
             targetLevel = hubLevels.Three;
             telemetry.addData("Target Level", targetLevel);
         }
+        telemetry.addData("Target Level", targetLevel);
         telemetry.update();
+        sleep(1000);
 
         //robot.WebCamC.stopStreaming();
     }
@@ -125,7 +127,7 @@ public class Auton_Red_Warehouse extends LinearOpMode {
             telemetry.addData("Stage:", "00, stop_n_stare");
             telemetry.update();
 
-            sleep(100); // give robot's pipeline time to startflowing - was 1000
+            sleep(1000); // give robot's pipeline time to startflowing - was 1000
 
             decoderRingA();         // take the data provided by the pipeline and decode it to discover the targetLevel
 

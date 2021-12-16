@@ -124,6 +124,32 @@ public class Teleop extends OpMode {
         // Setup a variable for each drive wheel to save power level for telemetry
         robot.DriveMecanum(gamepad1.right_stick_x, -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger > 0, gamepad1.right_bumper);
 
+
+        // Spin D-pod control
+        boolean spinLeft = gamepad2.dpad_left;
+        boolean spinRight = gamepad2.dpad_right;
+        double duckSpeed = .75; // was .6
+
+        //double duck_spin_slow_speed = .25;
+        //int duck_spin_slow_time = 500;
+        //double duck_spin_medium_speed = .75;
+        //int duck_spin_medium_time = 1250;
+        //double duck_spin_fast_speed = 1;
+        //int duck_spin_fast_time = 2000;
+
+        //duckSpinSlowLimit.reset();
+        //duckSpinMediumLimit.reset();
+        if (spinLeft) {
+            //spin duck left
+            robot.SpinDucks(duckSpeed);
+        } else if (spinRight) {
+            // Spion duck right
+            robot.SpinDucks(duckSpeed * -1);
+        } else {
+            // do nothing
+            robot.SpinDucks(0);
+        }
+
         // BotArm D-pod control
         boolean armUp = gamepad2.dpad_up;
         boolean armDown = gamepad2.dpad_down;
@@ -140,57 +166,15 @@ public class Teleop extends OpMode {
         }
 
 
-        if (armUp) {
+        if (armUp && !spinLeft && !spinRight) {  // disable arm if spin engaged. Hoping to solve problem with sloppy d pad pressing spin and arm together
             //raise the wing
             robot.Arm(armSpeed);
-        } else if (armDown) {
+        } else if (armDown && !spinLeft && !spinRight) {
             // lower the wing
             robot.Arm(armSpeed * -1);
         } else {
             // do nothing
             robot.Arm(0);
-        }
-
-
-
-        // Spin D-pod control
-        boolean spinLeft = gamepad2.dpad_left;
-        boolean spinRight = gamepad2.dpad_right;
-        double duckSpeed = .75; // was .6
-
-        double duck_spin_slow_speed = .25;
-        //int duck_spin_slow_time = 500;
-        double duck_spin_medium_speed = .75;
-        //int duck_spin_medium_time = 1250;
-        double duck_spin_fast_speed = 1;
-        //int duck_spin_fast_time = 2000;
-
-        //duckSpinSlowLimit.reset();
-        //duckSpinMediumLimit.reset();
-        if (spinLeft) {
-            //spin duck left
-            robot.SpinDucks(duckSpeed);
-
-            /*if(!duckSpinSlowLimit.hasExpired()) {
-                robot.SpinDucks(duck_spin_slow_speed);
-            } else if (!duckSpinMediumLimit.hasExpired()){
-                robot.SpinDucks(duck_spin_medium_speed);
-            } else {
-                robot.SpinDucks(duck_spin_fast_speed);
-            } */
-        } else if (spinRight) {
-            // Spion duck right
-            robot.SpinDucks(duckSpeed * -1);
-            /*if(!duckSpinSlowLimit.hasExpired()) {
-                robot.SpinDucks(duck_spin_slow_speed * -1);
-            } else if (!duckSpinMediumLimit.hasExpired()){
-                robot.SpinDucks(duck_spin_medium_speed * -1);
-            } else {
-                robot.SpinDucks(duck_spin_fast_speed * -1);
-            }*/
-        } else {
-            // do nothing
-            robot.SpinDucks(0);
         }
 
 

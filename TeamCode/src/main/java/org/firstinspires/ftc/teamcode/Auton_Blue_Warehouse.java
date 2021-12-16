@@ -103,7 +103,9 @@ public class Auton_Blue_Warehouse extends LinearOpMode {
             targetLevel = hubLevels.One;
             telemetry.addData("Target Level", targetLevel);
         }
+        telemetry.addData("Target Level", targetLevel);
         telemetry.update();
+        //sleep(1000);
 
         //robot.WebCamC.stopStreaming();
     }
