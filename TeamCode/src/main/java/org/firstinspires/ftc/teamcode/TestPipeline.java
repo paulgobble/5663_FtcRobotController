@@ -10,113 +10,119 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 class TestPipeline extends OpenCvPipeline
 {
-    final double thresholdValue = 120;
-    final double MAX_BINARY_VALUE = 255;
+    private boolean leftCameraFoundTSE = false;
+    private boolean rightCameraFoundTSE = false;
 
-    final int topMargin = 100;          // Top margin to be cropped off
-    final int botMargin = 100;          // Bottom margin to be cropped off
-    final int leftMargin = 50;          // Left margin to be cropped off
-    final int righMargin = 50;          // Right margin to be cropped off
-    final int leftRightOffset = 0;    // margin adjustment to mask out unwanted side of camera view
-    int adjustedLeftMargin;
-    int adjustedRightMargin;
+    public double currentScanValue = 9999;
+    public int lastZoneScanned = 99;
 
-    Mat rotatedRightImage = new Mat();      // the right camear is upside down, so we need to flio thie image
-    Mat cSpaceShiftedImage = new Mat();     // Matrix to contain the input image after it is converted to LCrCb colorspace
-    Mat singleChannelImage = new Mat();     // Matrix to contain just the Cb chanel
-    Mat thresholdImage = new Mat();         // Matrix to contain adjusted image
-    Mat scanZoneSample = new Mat();
+    final double thresholdValue = 115; //was 120
+    final double MAX_BINARY_VALUE = 235; // was 255
 
-    enum redCamers {
-        theLeftOne,
-        theRightOne
-    }
+    final int leftMargin = 145;      // Left margin to be cropped off thresholdImage
+    final int righMargin = 145;     // Rign margin to be cropped off
+    final int topMargin = 100;       // Top margin to be cropped off
+    final int botMargin = 100;      // Bottom margin to be cropped off
 
-    private redCamers chosenCamera = redCamers.theRightOne;
-
-    private double scanZoneValue;
-
-    /***********************************************************
-     * This method is taken from the pipeline documentation.   *
-     * It serves no essential function, I just hope it smooths *
-     * out an initial perceived hickup where a new pipeline    *
-     * doesn't appear to kick in right away                    *
-     * *********************************************************/
-    @Override
-    public void init(Mat firstFrame)
-    {
-        // Compute the scan zone rectangle
-        final double frameWidth = firstFrame.cols();
-        final double frameHeight = firstFrame.rows();
-        Point upperLeft = new Point(leftMargin, topMargin);
-        Point lowerRight = new Point(frameWidth - righMargin, frameHeight - botMargin);
-        Rect scanZoneRect = new Rect(upperLeft, lowerRight);
-
-        scanZoneSample = firstFrame.submat(scanZoneRect);
-    } // End init
-
+    Mat workingFrame = new Mat();       // one Matrix to reuse
 
     @Override
     public Mat processFrame(Mat input)
     {
-        // rotate frames from the right camera
-        if (chosenCamera == redCamers.theRightOne) {
-            Core.rotate(input, rotatedRightImage, Core.ROTATE_180);
-            // convert the input RGB image to LAB color space
-            Imgproc.cvtColor(rotatedRightImage, cSpaceShiftedImage, Imgproc.COLOR_RGB2Lab);
-            // Adjust margins to mask out the left side of frame
-            int adjustedLeftMargin = 100; //leftMargin + leftRightOffset;
-            int adjustedRightMargin = 100; //righMargin;
-        } else if (chosenCamera == redCamers.theLeftOne) {
-            // convert the input RGB image to LAB color space
-            Imgproc.cvtColor(input, cSpaceShiftedImage, Imgproc.COLOR_RGB2Lab);
-            // Adjust margins to mask out the right side of frame
-            int adjustedLeftMargin = 50; //leftMargin;
-            int adjustedRightMargin = 150; //righMargin + leftRightOffset;
-        }
+        /**********************
+         * Process the frame  *
+         **********************/
+        // convert the input RGB image to LAB color space
+        Imgproc.cvtColor(input, workingFrame, Imgproc.COLOR_RGB2Lab); // was Imgproc.COLOR_RGB2YCrCb
         // extract just the A channel to isolate the difference in green
-        Core.extractChannel(cSpaceShiftedImage, singleChannelImage, 1);
+        Core.extractChannel(workingFrame, workingFrame, 1);
         // use the threshold Imgproc threshold method to enhance the visual separation between rings and mat floor
-        Imgproc.threshold(singleChannelImage, thresholdImage,thresholdValue, MAX_BINARY_VALUE, Imgproc.THRESH_TOZERO);
+        Imgproc.threshold(workingFrame, workingFrame,thresholdValue, MAX_BINARY_VALUE, Imgproc.THRESH_TOZERO);
+
+
+        /*****************************
+         * Loop over the target area *
+         * taking samples            *
+         *****************************/
+        final int frameWidth = input.cols();
+        final int frameHeight = input.rows();
+
+        int scanWidth = 50; // was 30
+        int scanHeight = frameHeight - topMargin - botMargin;
+        int leftScanPadding = 0;
+        int rightScanPadding = 0;
+        int scanStep = 25;
+
+        double testThreshold = 4; // max value to test as TSE green - was 10
+        int leftScanZoneLimit = 4;      // zone furthest to right to be considered a left scan zone
+        int rightScanZoneLimit = 10;    // zone furthest to right to be considered a right scan zone
+
+        double thisScanValue;
+        boolean foundTSE;
+
+        int scanLoopCounter = 0;
+
+        Mat scanZoneSample = new Mat();
+
+        outerloop:
+        for (int thisX = leftScanPadding; thisX < frameWidth - scanWidth - rightScanPadding; thisX = thisX + scanStep) {
+
+            // copy just target zone to a new matrix
+            scanZoneSample = workingFrame.submat(new Rect(thisX, topMargin, scanWidth, scanHeight));
+            // convert the matrix single color channel averaged numeric value
+            thisScanValue = Core.mean(scanZoneSample).val[0];
+            // decide if this value indicates presence of the TSE
+            foundTSE = (thisScanValue <= testThreshold);
+            // If a TSE is found, determine where it was seen and pass it back to robot
+            if (foundTSE){
+                if(scanLoopCounter <= leftScanZoneLimit) {
+                    leftCameraFoundTSE = true;
+                    rightCameraFoundTSE = false;
+                    currentScanValue = thisScanValue;
+                    break outerloop;
+                } else if (scanLoopCounter <= rightScanZoneLimit){
+                    leftCameraFoundTSE = false;
+                    rightCameraFoundTSE = true;
+                    currentScanValue = thisScanValue;
+                    break outerloop;
+                }
+            } else {
+                leftCameraFoundTSE = false;
+                rightCameraFoundTSE = false;
+                currentScanValue = 7777;
+            }
+            lastZoneScanned = scanLoopCounter;
+            // increment the counter
+            scanLoopCounter += 1;
+        } // end for
+
+        scanZoneSample.release();
 
         // Compute the scan zone rectangle
-        final double frameWidth = input.cols();
-        final double frameHeight = input.rows();
-        Point upperLeft = new Point(adjustedLeftMargin, topMargin);
-        Point lowerRight = new Point(frameWidth - adjustedRightMargin, frameHeight - botMargin);
+        Point upperLeft = new Point(leftMargin, topMargin);
+        Point lowerRight = new Point(frameWidth - righMargin, frameHeight - botMargin);
         Rect scanZoneRect = new Rect(upperLeft, lowerRight);
 
-        int zoneWidth = scanZoneRect.width;
-        int zoneHeight = scanZoneRect.height;
-
-        // create a submat containing just the cropped scan zone
-        scanZoneSample = thresholdImage.submat(scanZoneRect);//scanZoneSample = thresholdImage.submat(new Rect(leftMargin, righMargin, zoneWidth, zoneHeight));
-        // convert the MAT scanZoneSample into a single value representing its brightess
-        scanZoneValue = Core.mean(scanZoneSample).val[0];
-
         Imgproc.rectangle(
-                thresholdImage,
+                workingFrame,
                 upperLeft,
                 lowerRight,
-                new Scalar(255, 0, 0), 4);
+                new Scalar(255, 0, 0), 1); //
 
-        return thresholdImage;
-
+        return workingFrame;
     } // End processFrame
 
 
-    public void selectCamera(redCamers thisCamera) {
 
-        chosenCamera = thisCamera;
+    public boolean didLeftCameraFindTSE() {
+        return leftCameraFoundTSE;
+    } // End didLeftCameraFindTSE
 
-    } // End selectCamera
 
 
-    public double getScanZoneValue() {
-
-        return scanZoneValue;
-
-    } // End getScanZoneValue
+    public boolean didRightCameraFindTSE() {
+        return rightCameraFoundTSE;
+    } // End didRightCameraFindTSE
 
 
 } // End class testPipeline

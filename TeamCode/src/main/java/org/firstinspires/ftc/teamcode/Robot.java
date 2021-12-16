@@ -156,14 +156,14 @@ public class Robot {
 
         // Define webcams
         // Step 1. Get live viewport
-        int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
+        //int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
 
         // Step 2. Create a webcam instance
-        WebcamName webcamName = hwMap.get(WebcamName.class, "webCamCenter");
-        OpenCvCamera WebCamC = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+        //WebcamName webcamName = hwMap.get(WebcamName.class, "webCamCenter");
+        //OpenCvCamera WebCamC = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
         // Step 3. Open the Camera Device
-        WebCamC.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        /*WebCamC.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
@@ -175,11 +175,9 @@ public class Robot {
             @Override
             public void onError(int errorCode)
             {
-                /*
-                 * This will be called if the camera could not be opened
-                 */
+
             }
-        });
+        }); */
 
     }
 
