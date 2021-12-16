@@ -7,12 +7,21 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
 @Autonomous(name="Auton_Red_Ducks", group="Autonomous")
 //@Disabled
 public class Auton_Red_Ducks extends LinearOpMode {
 
     /* Declare OpMode members. */
     Robot robot = new Robot();
+
+    /* Setup Camera */
+    public OpenCvCamera WebCamC = null;
+    TestPipeline pipeline;
 
     enum hubLevels {
         One,  // bottom
@@ -30,7 +39,35 @@ public class Auton_Red_Ducks extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        robot.init(hardwareMap);  //I'm guessing we don't need to call a hMap method.  Robot's init method takes care of this
+        robot.init(hardwareMap);
+
+
+        // Define webcam
+        // Step 1. Get live viewport
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        // Step 2. Create a webcam instance
+        WebcamName webcamName = hardwareMap.get(WebcamName.class, "webCamCenter");
+        OpenCvCamera WebCamC = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+        // Step 2.5 create a new pipeline object?
+        pipeline = new TestPipeline();
+        // Step 3. Open the Camera Device
+        WebCamC.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                WebCamC.setPipeline(pipeline);
+                WebCamC.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+            }
+
+            @Override
+            public void onError(int errorCode)
+            {
+                /*
+                 * This will be called if the camera could not be opened
+                 */
+            }
+        });
 
         //Reset all encoders to have a fresh start when the match starts.
         robot.FLDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -48,6 +85,7 @@ public class Auton_Red_Ducks extends LinearOpMode {
         robot.Spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.Spin2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.BotArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -124,17 +162,24 @@ public class Auton_Red_Ducks extends LinearOpMode {
 
     private void decoderRingB() {  // use this decoder ring for Red Duck and Blue Warehouse
 
-        if (robot.leftCameraFoundTSE) {
+        if (pipeline.didLeftCameraFindTSE()) {
             targetLevel = hubLevels.Two;
-            telemetry.addData("Target Level", targetLevel);
-        } else if (robot.rightCameraFoundTSE) {
+            //telemetry.addData("Target Level", targetLevel);
+        } else if (pipeline.didRightCameraFindTSE()) {
             targetLevel = hubLevels.Three;
-            telemetry.addData("Target Level", targetLevel);
+            //telemetry.addData("Target Level", targetLevel);
         } else {
             targetLevel = hubLevels.One;
-            telemetry.addData("Target Level", targetLevel);
+            //telemetry.addData("Target Level", targetLevel);
         }
+        telemetry.addData("Stage:", "xx, decoderRingB");
+        telemetry.addData("Scan Value", pipeline.currentScanValue);
+        telemetry.addData("Target Level", targetLevel);
+        telemetry.addData("Left is", pipeline.didLeftCameraFindTSE());
+        telemetry.addData("Rght is", pipeline.didRightCameraFindTSE());
+        telemetry.addData("Last Zone Scnned", pipeline.lastZoneScanned);
         telemetry.update();
+        sleep(1000);
 
         //robot.WebCamC.stopStreaming();
     }

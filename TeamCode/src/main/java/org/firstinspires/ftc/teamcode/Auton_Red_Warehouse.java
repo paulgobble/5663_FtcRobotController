@@ -173,7 +173,7 @@ public class Auton_Red_Warehouse extends LinearOpMode {
             telemetry.addData("Scan Value", pipeline.currentScanValue);
             telemetry.update();
 
-            sleep(1000); // give robot's pipeline time to startflowing - was 1000
+            sleep(100); // give robot's pipeline time to startflowing - was 1000
 
             decoderRingA();         // take the data provided by the pipeline and decode it to discover the targetLevel
 
